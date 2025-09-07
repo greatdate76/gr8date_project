@@ -1,0 +1,1000 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Create Your Profile – GR8Date</title>
+<style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', Arial, sans-serif; /* Using Inter for a modern look */
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    :root {
+      --brand-primary-red: #ff3366;
+      --border-light: #ddd;
+      --background-white: #fff;
+      --text-dark: #333;
+      --text-light: #777;
+      --shadow-light: rgba(0,0,0,0.1);
+      --color-green: #28a745; /* For met requirements */
+      --color-red: #dc3545; /* For unmet requirements */
+      --header-height: 60px; /* Define a fixed height for the header */
+      --progress-bar-height: 8px; /* Define height for the progress bar */
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* --- Header Styles --- */
+    .app-header {
+      background-color: var(--background-white);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 4px var(--shadow-light);
+      height: var(--header-height);
+    }
+    
+    /* --- New Logo Styles --- */
+    .logo-link {
+        padding-left: 1rem;
+        text-decoration: none;
+    }
+    .logo-img {
+      height: 40px;
+      width: auto;
+      vertical-align: middle;
+      display: block;
+    }
+    .logo-desktop {
+      display: none; /* Hidden by default (mobile-first) */
+    }
+    .logo-mobile {
+      display: block; /* Shown by default (mobile-first) */
+    }
+
+    @media (min-width: 768px) {
+        .logo-desktop {
+            display: block; /* Show desktop logo on larger screens */
+        }
+        .logo-mobile {
+            display: none; /* Hide mobile logo on larger screens */
+        }
+    }
+    
+    .app-header .right-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding-right: 1rem;
+    }
+    .app-header .profile-icon {
+      font-size: 1.8rem;
+      color: var(--text-dark);
+    }
+
+    /* --- Fixed Progress Bar Styles --- */
+    .progress-bar-fixed-container {
+      position: fixed;
+      top: calc(var(--header-height) + 2px);
+      left: 0;
+      width: 100%;
+      height: var(--progress-bar-height);
+      background-color: #e0e0e0;
+      z-index: 999;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+    }
+    .progress-bar-fixed {
+      height: 100%;
+      width: 0%;
+      background-color: var(--brand-primary-red);
+      transition: width 0.3s ease-in-out;
+    }
+    .progress-percentage-text {
+        position: absolute;
+        right: 1rem;
+        font-size: 0.8rem;
+        color: var(--text-dark);
+        font-weight: bold;
+        z-index: 1000;
+        background-color: transparent;
+        padding-left: 0.5rem;
+        text-shadow: 0 0 2px rgba(255,255,255,0.7);
+    }
+
+    main.profile-content-area {
+        padding-top: calc(1.5rem + var(--header-height) + var(--progress-bar-height) + 2px);
+        padding-bottom: 1.5rem;
+    }
+
+    @media (max-width: 991px) {
+      .app-header {
+        justify-content: space-between;
+      }
+      .app-header .logo-link {
+        flex-grow: 1;
+        text-align: left;
+      }
+      .app-header .right-section {
+        padding-right: 0.5rem;
+      }
+    }
+    
+    /* --- Modal Popup Styles --- */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 15% auto;
+      padding: 30px;
+      border-radius: 10px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 600px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      text-align: center;
+      position: relative;
+    }
+
+    .modal-content p {
+        font-size: 1rem;
+        line-height: 1.6;
+        margin: 0;
+        color: var(--text-dark);
+    }
+    .modal-content strong {
+        color: var(--brand-primary-red);
+    }
+
+    .close-button {
+      color: #aaa;
+      font-size: 36px;
+      font-weight: bold;
+      position: absolute;
+      top: 5px;
+      right: 15px;
+      cursor: pointer;
+      transition: color 0.3s ease;
+    }
+    .close-button:hover,
+    .close-button:focus {
+      color: #333;
+      text-decoration: none;
+    }
+
+    .profile-content-area {
+      padding-bottom: 1.5rem;
+    }
+
+    .profile-summary-card {
+      background-color: var(--background-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+    .profile-summary-card img {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin-bottom: 0.75rem;
+      border: 3px solid var(--brand-primary-red);
+    }
+    .profile-summary-card h2 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.5rem;
+      color: var(--text-dark);
+    }
+    .profile-summary-card p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+    .profile-summary-card .progress-bar-container,
+    .profile-summary-card .verify-button {
+      display: none;
+    }
+
+    .profile-section {
+      background-color: var(--background-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .profile-section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-light);
+      cursor: pointer;
+      background-color: #fcfcfc;
+    }
+    .profile-section-header h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--text-dark);
+    }
+    .profile-section-header .material-icons {
+      font-size: 1.5rem;
+      color: var(--text-light);
+      transition: transform 0.3s ease;
+    }
+    .profile-section-header.expanded .material-icons {
+      transform: rotate(45deg);
+    }
+    .profile-section-content {
+      padding: 1rem 1.5rem;
+      display: none;
+      border-top: 1px solid var(--border-light);
+      padding-top: 1.5rem;
+    }
+    .profile-section-content.expanded {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 0.25rem;
+    }
+    .required-asterisk {
+        color: var(--brand-primary-red);
+        margin-left: 0.25rem;
+        font-weight: bold;
+    }
+    .form-group input.error-field,
+    .form-group select.error-field,
+    .form-group textarea.error-field {
+        border: 2px solid var(--color-red);
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="password"],
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .form-group textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+    .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid var(--border-light);
+        border-radius: 5px;
+        font-family: inherit;
+        font-size: 1rem;
+        box-sizing: border-box;
+        background-color: var(--background-white);
+    }
+    .password-feedback {
+        font-size: 0.85rem;
+        margin-top: 0.5rem;
+        padding-left: 0.5rem;
+    }
+    .password-feedback p {
+        margin: 0.2rem 0;
+        color: var(--color-red);
+        display: flex;
+        align-items: center;
+    }
+    .password-feedback p.met {
+        color: var(--color-green);
+    }
+    .password-feedback .material-icons {
+        font-size: 1rem;
+        margin-right: 0.3rem;
+    }
+
+    .interests-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.5rem;
+    }
+    .interest-tag {
+        background-color: #e0e0e0;
+        color: var(--text-dark);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: background-color 0.2s ease;
+    }
+    .interest-tag:hover {
+        background-color: #d0d0d0;
+    }
+    .interest-tag.selected {
+        background-color: var(--brand-primary-red);
+        color: white;
+    }
+
+    .photo-upload-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .photo-upload-box {
+      background-color: #f0f0f0;
+      border: 2px dashed var(--border-light);
+      border-radius: 8px;
+      aspect-ratio: 1 / 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: background-color 0.2s ease, border-color 0.2s ease;
+    }
+    .photo-upload-box:hover {
+      background-color: #e9e9e9;
+      border-color: var(--brand-primary-red);
+    }
+    .photo-upload-box .material-icons {
+      font-size: 3rem;
+      color: var(--text-light);
+    }
+    .photo-upload-box p {
+      margin: 0.5rem 0 0;
+      font-size: 0.8rem;
+      color: var(--text-light);
+    }
+    .photo-upload-info {
+        font-size: 0.85rem;
+        color: var(--text-light);
+        text-align: center;
+        margin-top: 1.5rem;
+        padding: 0 1rem;
+    }
+    .save-profile-button {
+      background-color: var(--brand-primary-red);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 2rem;
+      display: block;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      transition: background-color 0.3s ease;
+    }
+    .save-profile-button:hover {
+      background-color: #e62e5c;
+    }
+
+    .site-footer {
+      background-color: #f2f2f2;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 2rem;
+    }
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .social-icons a {
+        color: #555;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+    .social-icons a:hover {
+        color: var(--brand-primary-red);
+    }
+    .social-icons .material-icons {
+        font-size: 1.5rem;
+    }
+
+    @media (min-width: 992px) {
+      .profile-summary-card {
+        flex-direction: row;
+        text-align: left;
+        justify-content: flex-start;
+      }
+      .profile-summary-card img {
+        margin-right: 1.5rem;
+        margin-bottom: 0;
+      }
+      .profile-summary-card .text-content {
+        flex-grow: 1;
+      }
+      .profile-summary-card .progress-bar-container {
+        width: 200px;
+      }
+      .profile-summary-card .verify-button {
+        margin-top: 0;
+        margin-left: 1.5rem;
+      }
+      .photo-upload-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+</head>
+<body>
+<div class="modal" id="welcome-modal">
+<div class="modal-content">
+<span class="close-button">×</span>
+<p><strong>Welcome to GR8Date!</strong> To find the best matches, complete your profile. The more you share, the more likely you are to connect with people who share your interests.</p>
+</div>
+</div>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:home' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="right-section">
+<span class="material-icons profile-icon">account_circle</span>
+</div>
+</header>
+<div class="progress-bar-fixed-container">
+<div class="progress-bar-fixed" id="profile-progress-bar"></div>
+<span class="progress-percentage-text" id="progress-percentage-text">0%</span>
+</div>
+<main class="profile-content-area container">
+<div class="profile-summary-card">
+<div class="text-content">
+<h2>Complete Your Profile</h2>
+</div>
+</div>
+<form action="{% url 'create_profile' %}" id="profile-creation-form" method="post">
+      {% csrf_token %}
+      <div class="profile-section" id="account-details-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Account Details (Required)</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="username">Username<span class="required-asterisk">*</span></label>
+<input id="username" name="username" placeholder="Choose a unique username" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="password">Password<span class="required-asterisk">*</span></label>
+<input id="password" name="password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&amp;*]).{8,}" placeholder="Enter your password" required="" title="Password must be at least 8 characters long and include at least one uppercase letter, one lowercase letter, one number, and one special character (!@#$%^&amp;*)" type="password"/>
+<div class="password-feedback" id="password-feedback">
+<p id="length-check"><span class="material-icons">cancel</span> At least 8 characters</p>
+<p id="lowercase-check"><span class="material-icons">cancel</span> One lowercase letter</p>
+<p id="uppercase-check"><span class="material-icons">cancel</span> One uppercase letter</p>
+<p id="number-check"><span class="material-icons">cancel</span> One number</p>
+<p id="special-check"><span class="material-icons">cancel</span> One special character (!@#$%^&amp;*)</p>
+</div>
+</div>
+<div class="form-group">
+<label for="confirmPassword">Confirm Password<span class="required-asterisk">*</span></label>
+<input id="confirmPassword" name="confirm_password" placeholder="Confirm your password" required="" type="password"/>
+</div>
+</div>
+</div>
+<div class="profile-section" id="basics-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Basics (Required)</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="location">Location</label>
+<input id="location" name="location" placeholder="Your current location" type="text" value=""/>
+</div>
+<div class="form-group">
+<label for="taglineInput">Your Tagline</label>
+<input id="taglineInput" name="tagline" placeholder="Simple as can be" type="text" value=""/>
+</div>
+<div class="form-group">
+<label for="offerBio">What do you have to offer?</label>
+<textarea id="offerBio" name="offer_bio" placeholder="A simple person"></textarea>
+</div>
+<div class="form-group">
+<label for="lookingForBio">What are you looking for?</label>
+<textarea id="lookingForBio" name="looking_for_bio" placeholder="Simple stuff"></textarea>
+</div>
+</div>
+</div>
+<div class="profile-section" id="photos-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Photos (At least 1 required)</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="photo-upload-grid">
+<div class="photo-upload-box" id="photo-upload-box-1">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box" id="photo-upload-box-2">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box" id="photo-upload-box-3">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box" id="photo-upload-box-4">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box" id="photo-upload-box-5">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box" id="photo-upload-box-6">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+</div>
+<p class="photo-upload-info">Please no nudity, filters, text, screenshots, or images without you.</p>
+</div>
+</div>
+<div class="profile-section" id="private-photos-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Private Photos</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="photo-upload-grid">
+<div class="photo-upload-box">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+<div class="photo-upload-box">
+<span class="material-icons">add</span>
+<p>Add Photo</p>
+</div>
+</div>
+<p class="photo-upload-info">These photos will only be visible to users you approve.</p>
+</div>
+</div>
+<div class="profile-section" id="looking-for-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Looking For</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<p>By filling in this section, we can help sort profiles that other users have said they are looking for, improving your matches!</p>
+<div class="form-group">
+<label for="lookingForAgeRange">Age Range</label>
+<select id="lookingForAgeRange" name="looking_for_age_range">
+<option value="">Any</option>
+<option value="18-24">18-24</option>
+<option value="25-34">25-34</option>
+<option value="35-44">35-44</option>
+<option value="45-54">45-54</option>
+<option value="55+">55+</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForBodyType">Body Type</label>
+<select id="lookingForBodyType" name="looking_for_body_type">
+<option value="">Any</option>
+<option value="athletic">Athletic</option>
+<option value="average">Average</option>
+<option value="curvy">Curvy</option>
+<option value="slim">Slim</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForDrinking">Drinking Habits</label>
+<select id="lookingForDrinking" name="looking_for_drinking">
+<option value="">Any</option>
+<option value="never">Never</option>
+<option value="socially">Socially</option>
+<option value="regularly">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForSmoking">Smoking Habits</label>
+<select id="lookingForSmoking" name="looking_for_smoking">
+<option value="">Any</option>
+<option value="never">Never</option>
+<option value="socially">Socially</option>
+<option value="regularly">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForGenerosity">Values Generosity</label>
+<select id="lookingForGenerosity" name="looking_for_generosity">
+<option value="">Any</option>
+<option value="highly_valued">Highly Valued</option>
+<option value="appreciated">Appreciated</option>
+<option value="not_a_focus">Not a Focus</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForTravel">Enjoys Travel</label>
+<select id="lookingForTravel" name="looking_for_travel">
+<option value="">Any</option>
+<option value="frequently">Frequently</option>
+<option value="occasionally">Occasionally</option>
+<option value="rarely">Rarely</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForLuxury">Appreciates Fine Dining/Luxury Experiences</label>
+<select id="lookingForLuxury" name="looking_for_luxury">
+<option value="">Any</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+<option value="sometimes">Sometimes</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForSupportive">Seeks a Mutually Supportive Relationship</label>
+<input id="lookingForSupportive" name="looking_for_supportive" type="checkbox"/>
+</div>
+<div class="form-group">
+<label for="lookingForDiverse">Open to Diverse Relationship Structures</label>
+<input id="lookingForDiverse" name="looking_for_diverse" type="checkbox"/>
+</div>
+<div class="form-group">
+<label for="lookingForInterests">Interests (Select one or more)</label>
+<div class="interests-tags" id="looking-for-interests-tags">
+<span class="interest-tag" data-interest="reading">Reading</span>
+<span class="interest-tag" data-interest="hiking">Hiking</span>
+<span class="interest-tag" data-interest="cooking">Cooking</span>
+<span class="interest-tag" data-interest="movies">Movies</span>
+<span class="interest-tag" data-interest="gaming">Gaming</span>
+<span class="interest-tag" data-interest="travel">Travel</span>
+<span class="interest-tag" data-interest="music">Music</span>
+<span class="interest-tag" data-interest="sports">Sports</span>
+</div>
+<input id="looking-for-interests-input" name="looking_for_interests" type="hidden"/>
+</div>
+</div>
+</div>
+<div class="profile-section" id="physical-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Physical</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="bodyType">Body Type</label>
+<select id="bodyType" name="body_type">
+<option value="">Select...</option>
+<option value="athletic">Athletic</option>
+<option value="average">Average</option>
+<option value="curvy">Curvy</option>
+<option value="slim">Slim</option>
+</select>
+</div>
+<div class="form-group">
+<label for="hairColor">Hair Color</label>
+<select id="hairColor" name="hair_color">
+<option value="">Select...</option>
+<option value="black">Black</option>
+<option value="brown">Brown</option>
+<option value="blonde">Blonde</option>
+<option value="red">Red</option>
+</select>
+</div>
+<div class="form-group">
+<label for="eyeColor">Eye Color</label>
+<select id="eyeColor" name="eye_color">
+<option value="">Select...</option>
+<option value="blue">Blue</option>
+<option value="brown">Brown</option>
+<option value="green">Green</option>
+<option value="hazel">Hazel</option>
+</select>
+</div>
+<div class="form-group">
+<label for="height">Height</label>
+<input id="height" name="height" placeholder="e.g., 175 cm" type="text"/>
+</div>
+<div class="form-group">
+<label for="piercings">Piercings</label>
+<select id="piercings" name="piercings">
+<option value="">Select...</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+</select>
+</div>
+<div class="form-group">
+<label for="tattoos">Tattoos</label>
+<select id="tattoos" name="tattoos">
+<option value="">Select...</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+</select>
+</div>
+</div>
+</div>
+<div class="profile-section" id="lifestyle-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Lifestyle</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="exerciseHabits">Exercise Habits</label>
+<select id="exerciseHabits" name="exercise_habits">
+<option value="">Select...</option>
+<option value="active">Active (daily)</option>
+<option value="moderate">Moderate (few times a week)</option>
+<option value="occasional">Occasional</option>
+<option value="rarely">Rarely</option>
+</select>
+</div>
+<div class="form-group">
+<label for="livingSituation">Living Situation</label>
+<select id="livingSituation" name="living_situation">
+<option value="">Select...</option>
+<option value="alone">Alone</option>
+<option value="roommates">With roommates</option>
+<option value="family">With family</option>
+</select>
+</div>
+<div class="form-group">
+<label for="smoking">Smoking</label>
+<select id="smoking" name="smoking">
+<option value="">Select...</option>
+<option value="never">Never</option>
+<option value="socially">Socially</option>
+<option value="regularly">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label for="drinking">Drinking</label>
+<select id="drinking" name="drinking">
+<option value="">Select...</option>
+<option value="never">Never</option>
+<option value="socially">Socially</option>
+<option value="regularly">Regularly</option>
+</select>
+</div>
+</div>
+</div>
+<div class="profile-section" id="interests-section">
+<div class="profile-section-header" onclick="toggleSection(this)">
+<h3>Interests</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<p>Interests help show off your personality and can help you find a great match!</p>
+<div class="interests-tags" id="interests-tags">
+<span class="interest-tag" data-interest="reading">Reading</span>
+<span class="interest-tag" data-interest="hiking">Hiking</span>
+<span class="interest-tag" data-interest="cooking">Cooking</span>
+<span class="interest-tag" data-interest="movies">Movies</span>
+<span class="interest-tag" data-interest="gaming">Gaming</span>
+<span class="interest-tag" data-interest="travel">Travel</span>
+<span class="interest-tag" data-interest="music">Music</span>
+<span class="interest-tag" data-interest="sports">Sports</span>
+</div>
+<input id="interests-input" name="interests" type="hidden"/>
+</div>
+</div>
+<button class="save-profile-button" type="submit">Save Basic Profile</button>
+</form>
+</main>
+<footer class="site-footer">
+<p>© 2025 GR8Date – All rights reserved.</p>
+<div class="footer-links">
+<a href="{% url 'pages:privacy' %}">Privacy</a>
+<a href="{% url 'pages:terms' %}">Terms</a>
+<a href="{% url 'aboutus' %}">About Us</a>
+<a href="{% url 'blog' %}">Blog</a>
+<a href="{% url 'pages:faq' %}">FAQ</a>
+<a href="{% url 'pages:contact' %}">Contact</a>
+</div>
+<div class="social-icons">
+<a href="#" title="Facebook"><span class="material-icons">facebook</span></a>
+<a href="#" title="Instagram"><span class="material-icons">camera_alt</span></a>
+<a href="#" title="X (Twitter)"><span class="material-icons">alternate_email</span></a>
+</div>
+</footer>
+<script>
+    function toggleSection(headerElement) {
+      headerElement.classList.toggle('expanded');
+      const content = headerElement.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    }
+    
+    document.addEventListener('DOMContentLoaded', (event) => {
+      const modal = document.getElementById("welcome-modal");
+      const closeButton = document.querySelector(".close-button");
+
+      modal.style.display = "block";
+
+      closeButton.onclick = function() {
+        modal.style.display = "none";
+      }
+
+      window.onclick = function(event) {
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+    });
+
+    function updatePasswordFeedback() {
+      const passwordInput = document.getElementById('password');
+      const password = passwordInput.value;
+
+      const lengthCheck = document.getElementById('length-check');
+      const lowercaseCheck = document.getElementById('lowercase-check');
+      const uppercaseCheck = document.getElementById('uppercase-check');
+      const numberCheck = document.getElementById('number-check');
+      const specialCheck = document.getElementById('special-check');
+
+      const hasLength = password.length >= 8;
+      const hasLowercase = /[a-z]/.test(password);
+      const hasUppercase = /[A-Z]/.test(password);
+      const hasNumber = /\d/.test(password);
+      const hasSpecial = /[!@#$%^&*]/.test(password);
+
+      updateCheck(lengthCheck, hasLength);
+      updateCheck(lowercaseCheck, hasLowercase);
+      updateCheck(uppercaseCheck, hasUppercase);
+      updateCheck(numberCheck, hasNumber);
+      updateCheck(specialCheck, hasSpecial);
+
+      if (hasLength && hasLowercase && hasUppercase && hasNumber && hasSpecial) {
+        passwordInput.classList.remove('error-field');
+      } else {
+        passwordInput.classList.add('error-field');
+      }
+      updateProgressBar();
+    }
+    
+    function updateCheck(element, isMet) {
+      if (isMet) {
+        element.classList.add('met');
+        element.querySelector('.material-icons').textContent = 'check_circle';
+      } else {
+        element.classList.remove('met');
+        element.querySelector('.material-icons').textContent = 'cancel';
+      }
+    }
+    
+    document.getElementById('password').addEventListener('input', updatePasswordFeedback);
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const passwordInput = document.getElementById('password');
+        if (passwordInput && !passwordInput.value) {
+            document.getElementById('password-feedback').style.display = 'none';
+        }
+    });
+    
+    document.getElementById('password').addEventListener('focus', () => {
+        const passwordFeedback = document.getElementById('password-feedback');
+        if (passwordFeedback) {
+            passwordFeedback.style.display = 'block';
+            updatePasswordFeedback();
+        }
+    });
+    document.getElementById('password').addEventListener('blur', () => {
+        const passwordInput = document.getElementById('password');
+        const passwordFeedback = document.getElementById('password-feedback');
+        if (passwordInput && !passwordInput.value && passwordFeedback) {
+            passwordFeedback.style.display = 'none';
+        }
+    });
+  
+    document.querySelectorAll('.interests-tags').forEach(container => {
+      container.addEventListener('click', function(event) {
+        if (event.target.classList.contains('interest-tag')) {
+          event.target.classList.toggle('selected');
+        }
+      });
+    });
+
+    const totalSections = document.querySelectorAll('.profile-section').length;
+    let completedSections = 0;
+
+    function updateProgressBar() {
+        let currentCompleted = 0;
+        
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        if (username && password && confirmPassword && (password === confirmPassword)) {
+            currentCompleted++;
+        }
+
+        const location = document.getElementById('location').value;
+        if (location) {
+            currentCompleted++;
+        }
+
+        currentCompleted += 1; // Photos section
+
+        const progress = Math.round((currentCompleted / totalSections) * 100);
+        const progressBar = document.getElementById('profile-progress-bar');
+        const percentageText = document.getElementById('progress-percentage-text');
+
+        if (progressBar && percentageText) {
+          progressBar.style.width = progress + '%';
+          percentageText.textContent = progress + '%';
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', updateProgressBar);
+    document.querySelectorAll('.profile-section-content input, .profile-section-content select, .profile-section-content textarea').forEach(element => {
+        element.addEventListener('change', updateProgressBar);
+        element.addEventListener('input', updateProgressBar);
+    });
+  </script>
+</body>
+</html>

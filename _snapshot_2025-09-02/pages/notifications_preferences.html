@@ -1,0 +1,554 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Notification Preferences – GR8Date</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        :root {
+            --brand-primary-red: #ff3366;
+            --border-light: #ddd;
+            --background-white: #fff;
+            --text-dark: #333;
+            --text-light: #777;
+            --shadow-light: rgba(0,0,0,0.1);
+            --color-green: #28a745;
+            --color-red: #dc3545;
+        }
+
+        body {
+            margin: 0;
+            padding: 0; /* Changed for full-width header */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        
+        /* --- Header Styles --- */
+        .app-header {
+          background-color: var(--background-white);
+          border-bottom: 1px solid var(--border-light);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* --- New Logo Styles --- */
+        .logo-img {
+          height: 40px;
+          width: auto;
+          vertical-align: middle;
+          display: block;
+        }
+        .logo-mobile {
+          display: none;
+        }
+        
+        @media (max-width: 600px) {
+          .logo-desktop {
+            display: none;
+          }
+          .logo-mobile {
+            display: block;
+          }
+          .logo-img {
+            height: 35px;
+          }
+        }
+
+        .app-header .auth-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .app-header .auth-button {
+          background-color: var(--brand-primary-red);
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          transition: background-color 0.3s ease;
+        }
+        .app-header .auth-button:hover {
+          background-color: #e62e5c;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: var(--background-white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--brand-primary-red);
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+
+        p.intro {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .profile-section {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+            text-align: left;
+        }
+
+        .profile-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            background-color: #fcfcfc;
+        }
+
+        .profile-section-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+
+        .profile-section-header .material-icons {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            transition: transform 0.3s ease;
+        }
+
+        .profile-section-header.expanded .material-icons {
+            transform: rotate(180deg);
+        }
+
+        .profile-section-content {
+            padding: 0 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+
+        .profile-section-content.expanded {
+            padding: 1rem 1.5rem 1.5rem;
+            max-height: 2000px;
+        }
+
+        .form-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            flex: 1;
+            min-width: 0;
+            font-weight: bold;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+            margin-right: 15px;
+        }
+
+        .form-group p.description {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 5px;
+            flex-basis: 100%;
+            text-align: left;
+        }
+
+        .form-group.checkbox-group-item {
+            justify-content: flex-start;
+        }
+
+        .form-group.checkbox-group-item input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px !important;
+            max-width: 50px !important;
+            height: 24px;
+            margin-left: 15px !important;
+            flex-shrink: 0 !important;
+            flex-grow: 0 !important;
+            cursor: pointer;
+        }
+
+        .form-group.checkbox-group-item > label.toggle-switch {
+            flex: 0 0 50px !important;
+            margin-left: 15px !important;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 16px;
+            width: 16px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: 0.4s;
+            border-radius: 50%;
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: var(--brand-primary-red);
+        }
+
+        .toggle-switch input:focus + .toggle-slider {
+            box-shadow: 0 0 1px var(--brand-primary-red);
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(26px);
+        }
+
+        .action-button {
+            background-color: var(--brand-primary-red);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            align-self: flex-start;
+        }
+
+        .action-button:hover {
+            background-color: #e62e5c;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: var(--brand-primary-red);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #fce4ec;
+            transition: background-color 0.3s ease;
+        }
+        .back-link a:hover {
+            background-color: #f8bbd0;
+        }
+
+        @media (max-width: 768px) {
+            .action-button {
+                width: 100%;
+            }
+
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .form-group label {
+                margin-right: 0;
+                margin-bottom: 8px;
+            }
+
+            .toggle-switch {
+                margin-left: 0 !important;
+                align-self: flex-end;
+            }
+
+            .form-group.checkbox-group-item > label.toggle-switch {
+                flex: 0 0 50px !important;
+                margin-left: 0 !important;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:home' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button" href="{% url 'pages:dashboard' %}">Dashboard</a>
+</div>
+</header>
+<div class="container">
+<h1>Notification Preferences</h1>
+<p class="intro">Control how and when you receive updates and communications from GR8Date.</p>
+<div class="profile-section" id="email-notifications-section">
+<div class="profile-section-header">
+<h3>Email Notifications</h3>
+<span class="material-icons">expand_more</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group checkbox-group-item">
+<label for="email_new_message">New Message Alerts:</label>
+<label class="toggle-switch" for="email_new_message">
+<input checked="" id="email_new_message" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="email_new_match">New Match Notifications:</label>
+<label class="toggle-switch" for="email_new_match">
+<input checked="" id="email_new_match" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="email_profile_view">Profile View Notifications:</label>
+<label class="toggle-switch" for="email_profile_view">
+<input id="email_profile_view" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="email_hot_date_updates">Hot Date Invitations &amp; Updates:</label>
+<label class="toggle-switch" for="email_hot_date_updates">
+<input checked="" id="email_hot_date_updates" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="email_site_promotions">Site Announcements &amp; Promotions:</label>
+<label class="toggle-switch" for="email_site_promotions">
+<input id="email_site_promotions" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item" style="margin-top: 25px;">
+<label for="email_unsubscribe_all" style="color: var(--color-red);">Unsubscribe from All Emails:</label>
+<label class="toggle-switch" for="email_unsubscribe_all">
+<input id="email_unsubscribe_all" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+<p class="description" style="color: var(--color-red);">
+            Warning: If you unsubscribe from all emails, you will miss important account-related updates.
+          </p>
+</div>
+<button class="action-button" id="save_email_preferences_button" type="button">Save Email Preferences</button>
+</div>
+</div>
+<div class="profile-section" id="push-notifications-section">
+<div class="profile-section-header">
+<h3>Push Notifications</h3>
+<span class="material-icons">expand_more</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group checkbox-group-item">
+<label for="push_enable">Enable Push Notifications:</label>
+<label class="toggle-switch" for="push_enable">
+<input checked="" id="push_enable" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+<p class="description">
+            Turn on/off all push notifications from the GR8Date app/website.
+          </p>
+</div>
+<div id="push_sub_options" style="border-top: 1px dashed var(--border-light); padding-top: 15px; margin-top: 15px;">
+<p style="font-weight: bold; margin-bottom: 10px;">Specific Push Alerts:</p>
+<div class="form-group checkbox-group-item">
+<label for="push_new_message">New Message Alerts:</label>
+<label class="toggle-switch" for="push_new_message">
+<input checked="" id="push_new_message" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="push_new_match">New Match Alerts:</label>
+<label class="toggle-switch" for="push_new_match">
+<input checked="" id="push_new_match" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="push_hot_date_reminders">Hot Date Reminders:</label>
+<label class="toggle-switch" for="push_hot_date_reminders">
+<input id="push_hot_date_reminders" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="push_profile_view">Profile View Alerts:</label>
+<label class="toggle-switch" for="push_profile_view">
+<input id="push_profile_view" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+</div>
+<div class="form-group checkbox-group-item">
+<label for="push_badge_updates">Enable Badge Count Updates:</label>
+<label class="toggle-switch" for="push_badge_updates">
+<input id="push_badge_updates" type="checkbox"/>
+<span class="toggle-slider"></span>
+</label>
+<p class="description">
+              Enable badge count updates to show the number of unread notifications directly on the app icon.
+            </p>
+</div>
+</div>
+<button class="action-button" id="save_push_preferences_button" type="button">Save Push Preferences</button>
+</div>
+</div>
+<p class="back-link"><a href="{% url 'pages:my_profile' %}">← Back to Profile Options</a></p>
+</div>
+<script>
+    function toggleSection(headerElement) {
+      const content = headerElement.nextElementSibling;
+      const icon = headerElement.querySelector('.material-icons');
+
+      headerElement.classList.toggle('expanded');
+      content.classList.toggle('expanded');
+
+      if (content.classList.contains('expanded')) {
+        content.style.maxHeight = content.scrollHeight + 'px';
+        icon.textContent = 'expand_less';
+      } else {
+        content.style.maxHeight = '0';
+        icon.textContent = 'expand_more';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      // Sample current user notification settings
+      const currentUserNotifications = {
+        email: {
+          newMessage: true,
+          newMatch: true,
+          profileView: false,
+          hotDateUpdates: true,
+          sitePromotions: false,
+          unsubscribeAll: false,
+        },
+        push: {
+          enable: true,
+          newMessage: true,
+          newMatch: true,
+          hotDateReminders: false,
+          profileView: false,
+          badgeUpdates: true,
+        },
+      };
+
+      // Initialize email toggles
+      document.getElementById('email_new_message').checked = currentUserNotifications.email.newMessage;
+      document.getElementById('email_new_match').checked = currentUserNotifications.email.newMatch;
+      document.getElementById('email_profile_view').checked = currentUserNotifications.email.profileView;
+      document.getElementById('email_hot_date_updates').checked = currentUserNotifications.email.hotDateUpdates;
+      document.getElementById('email_site_promotions').checked = currentUserNotifications.email.sitePromotions;
+      document.getElementById('email_unsubscribe_all').checked = currentUserNotifications.email.unsubscribeAll;
+
+      // Disable all email toggles if unsubscribe all is checked
+      document.getElementById('email_unsubscribe_all').addEventListener('change', function () {
+        const isUnsubscribed = this.checked;
+        document.querySelectorAll('#email-notifications-section input[type="checkbox"]:not(#email_unsubscribe_all)').forEach(checkbox => {
+          checkbox.disabled = isUnsubscribed;
+          if (isUnsubscribed) checkbox.checked = false;
+        });
+      });
+      // Trigger on page load to set correct states
+      document.getElementById('email_unsubscribe_all').dispatchEvent(new Event('change'));
+
+      // Initialize push toggles
+      const pushEnableToggle = document.getElementById('push_enable');
+      pushEnableToggle.checked = currentUserNotifications.push.enable;
+      document.getElementById('push_new_message').checked = currentUserNotifications.push.newMessage;
+      document.getElementById('push_new_match').checked = currentUserNotifications.push.newMatch;
+      document.getElementById('push_hot_date_reminders').checked = currentUserNotifications.push.hotDateReminders;
+      document.getElementById('push_profile_view').checked = currentUserNotifications.push.profileView;
+      document.getElementById('push_badge_updates').checked = currentUserNotifications.push.badgeUpdates;
+
+      function togglePushSubOptions() {
+        const disabled = !pushEnableToggle.checked;
+        document.querySelectorAll('#push_sub_options input[type="checkbox"]').forEach(checkbox => {
+          checkbox.disabled = disabled;
+          if (disabled) checkbox.checked = false;
+        });
+      }
+      pushEnableToggle.addEventListener('change', togglePushSubOptions);
+      togglePushSubOptions();
+
+      // Expand/Collapse sections on header click
+      document.querySelectorAll('.profile-section-header').forEach(header => {
+        header.addEventListener('click', function () {
+          toggleSection(this);
+        });
+      });
+
+      // Initially expand Email Notifications section
+      document.querySelector('#email-notifications-section .profile-section-header').click();
+
+      // Save buttons actions (mock alert)
+      document.getElementById('save_email_preferences_button').addEventListener('click', function () {
+        const emailPreferences = {
+          newMessage: document.getElementById('email_new_message').checked,
+          newMatch: document.getElementById('email_new_match').checked,
+          profileView: document.getElementById('email_profile_view').checked,
+          hotDateUpdates: document.getElementById('email_hot_date_updates').checked,
+          sitePromotions: document.getElementById('email_site_promotions').checked,
+          unsubscribeAll: document.getElementById('email_unsubscribe_all').checked,
+        };
+        alert(`Email Preferences saved:\n${JSON.stringify(emailPreferences, null, 2)}`);
+      });
+
+      document.getElementById('save_push_preferences_button').addEventListener('click', function () {
+        const pushPreferences = {
+          enable: document.getElementById('push_enable').checked,
+          newMessage: document.getElementById('push_new_message').checked,
+          newMatch: document.getElementById('push_new_match').checked,
+          hotDateReminders: document.getElementById('push_hot_date_reminders').checked,
+          profileView: document.getElementById('push_profile_view').checked,
+          badgeUpdates: document.getElementById('push_badge_updates').checked,
+        };
+        alert(`Push Preferences saved:\n${JSON.stringify(pushPreferences, null, 2)}`);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,168 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{{ profile.display_name|default:"Profile" }} • GR8DATE</title>
+  <link rel="icon" href="{% static 'images/gr8d-favicon.png' %}">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --fg:#0b0b0c; --muted:#6b7280; --accent:#ef3f71; --card:#fff; --bg:#f7f7f8; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.55 "Inter",-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid #ececec;z-index:10}
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .logo picture img{height:36px;display:block}
+    .bar{display:flex;gap:16px;align-items:center;justify-content:space-between}
+    /* Gallery first */
+    .gallery{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-top:16px}
+    .hero{background:#f0f0f0;border-radius:16px;overflow:hidden}
+    .hero img{width:100%;height:auto;display:block;object-fit:cover}
+    .thumbs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+    .thumbs img{width:100%;border-radius:12px;aspect-ratio:4/5;object-fit:cover;background:#f3f3f3}
+    @media (max-width:900px){.gallery{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid #eee;border-radius:16px;padding:18px;box-shadow:0 1px 2px rgba(0,0,0,.04);margin-top:16px}
+    h1{font-size:1.45rem;margin:0 0 6px}
+    .sub{color:var(--muted);margin:0 0 10px}
+    .row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media (max-width:800px){.row{grid-template-columns:1fr}}
+    .item{padding:10px 12px;border:1px solid #eee;border-radius:12px;background:#fff}
+    .label{font-size:.82rem;color:var(--muted);margin-bottom:4px}
+    .value{font-weight:600}
+    .about p{margin:.5em 0}
+    .tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+    .tag{background:#fff;border:1px solid #eee;border-radius:999px;padding:6px 10px;font-size:.85rem}
+    .back{display:inline-block;margin-top:20px;color:var(--accent);font-weight:700}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap bar">
+      <a class="logo" href="{% url 'pages:index' %}">
+        <picture>
+          <source media="(max-width: 640px)" srcset="{% static 'images/gr8date-logo-mobile.svg' %}">
+          <img src="{% static 'images/gr8date-logo-desktop.svg' %}" alt="GR8DATE">
+        </picture>
+      </a>
+      <a class="back" href="{% url 'pages:dashboard' %}">‹ Back to Dashboard</a>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Gallery FIRST (as requested) -->
+    <section class="gallery" aria-label="Photo gallery">
+      <div class="hero">
+        {% if profile.primary_image_url %}
+          <img src="{{ profile.primary_image_url }}" alt="{{ profile.display_name|default:'Profile' }} main photo">
+        {% else %}
+          <img src="{% static 'images/placeholder-16x9.png' %}" alt="No photo yet">
+        {% endif %}
+      </div>
+      <div class="thumbs">
+        {% if profile.gallery_image_urls %}
+          {% for url in profile.gallery_image_urls %}
+            {% if url %}
+              <img src="{{ url }}" alt="{{ profile.display_name|default:'Profile' }} photo {{ forloop.counter }}">
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <img src="{% static 'images/placeholder-4x5.png' %}" alt="Placeholder">
+          <img src="{% static 'images/placeholder-4x5.png' %}" alt="Placeholder">
+          <img src="{% static 'images/placeholder-4x5.png' %}" alt="Placeholder">
+          <img src="{% static 'images/placeholder-4x5.png' %}" alt="Placeholder">
+        {% endif %}
+      </div>
+    </section>
+
+    <!-- Identity row -->
+    <section class="card">
+      <h1>{{ profile.display_name|default:"Member" }}</h1>
+      <p class="sub">
+        {% if profile.age %}{{ profile.age }} • {% endif %}
+        {% if profile.location %}{{ profile.location }}{% endif %}
+      </p>
+      {% if profile.tags %}
+        <div class="tags">
+          {% for t in profile.tags %}
+            {% if t %}<span class="tag">{{ t }}</span>{% endif %}
+          {% endfor %}
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- Quick facts (hidden if empty) -->
+    <section class="row">
+      {% if profile.height or profile.body_type %}
+        <div class="item">
+          <div class="label">Appearance</div>
+          <div class="value">
+            {% if profile.height %}{{ profile.height }}{% endif %}
+            {% if profile.height and profile.body_type %} • {% endif %}
+            {% if profile.body_type %}{{ profile.body_type }}{% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if profile.occupation or profile.education %}
+        <div class="item">
+          <div class="label">Background</div>
+          <div class="value">
+            {% if profile.occupation %}{{ profile.occupation }}{% endif %}
+            {% if profile.occupation and profile.education %} • {% endif %}
+            {% if profile.education %}{{ profile.education }}{% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if profile.relationship_goal or profile.interests %}
+        <div class="item">
+          <div class="label">Interests & Goals</div>
+          <div class="value">
+            {% if profile.relationship_goal %}{{ profile.relationship_goal }}{% endif %}
+            {% if profile.relationship_goal and profile.interests %} • {% endif %}
+            {% if profile.interests %}{{ profile.interests }}{% endif %}
+          </div>
+        </div>
+      {% endif %}
+
+      {% if profile.smoking or profile.drinking %}
+        <div class="item">
+          <div class="label">Lifestyle</div>
+          <div class="value">
+            {% if profile.smoking %}{{ profile.smoking }}{% endif %}
+            {% if profile.smoking and profile.drinking %} • {% endif %}
+            {% if profile.drinking %}{{ profile.drinking }}{% endif %}
+          </div>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- About AFTER images -->
+    {% if profile.about %}
+      <section class="card about">
+        <h2>About</h2>
+        <p>{{ profile.about }}</p>
+      </section>
+    {% endif %}
+
+    <!-- Optional sections, only if data exists -->
+    {% if profile.expectations %}
+      <section class="card">
+        <h2>Expectations</h2>
+        <p>{{ profile.expectations }}</p>
+      </section>
+    {% endif %}
+
+    {% if profile.extras %}
+      <section class="card">
+        <h2>More Info</h2>
+        <p>{{ profile.extras }}</p>
+      </section>
+    {% endif %}
+  </main>
+</body>
+</html>
+

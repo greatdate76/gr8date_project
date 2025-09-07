@@ -1,0 +1,896 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Edit My Profile – GR8Date</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        :root {
+            --brand-primary-red: #ff3366;
+            --border-light: #ddd;
+            --background-white: #fff;
+            --text-dark: #333;
+            --text-light: #777;
+            --input-disabled-bg: #e9ecef;
+            --input-disabled-text: #6c757d;
+            --shadow-light: rgba(0,0,0,0.1);
+        }
+
+        body {
+            margin: 0;
+            padding: 0; /* Changed for full-width header */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        
+        /* --- Header Styles --- */
+        .app-header {
+          background-color: var(--background-white);
+          border-bottom: 1px solid var(--border-light);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* --- New Logo Styles --- */
+        .logo-img {
+          height: 40px;
+          width: auto;
+          vertical-align: middle;
+          display: block;
+        }
+        .logo-mobile {
+          display: none;
+        }
+        
+        @media (max-width: 600px) {
+          .logo-desktop {
+            display: none;
+          }
+          .logo-mobile {
+            display: block;
+          }
+          .logo-img {
+            height: 35px;
+          }
+        }
+
+        .app-header .auth-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .app-header .auth-button {
+          background-color: var(--brand-primary-red);
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          transition: background-color 0.3s ease;
+        }
+        .app-header .auth-button:hover {
+          background-color: #e62e5c;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: var(--background-white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--brand-primary-red);
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+
+        p.intro {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .profile-section {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .profile-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            background-color: #fcfcfc;
+        }
+        
+        .profile-section-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+        
+        .profile-section-header .material-icons {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            transition: transform 0.3s ease;
+        }
+        
+        .profile-section-header.expanded .material-icons {
+            transform: rotate(45deg);
+        }
+        
+        .profile-section-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            padding: 0 1.5rem;
+        }
+        
+        .profile-section-content.expanded {
+            max-height: 2000px;
+            padding: 1rem 1.5rem;
+        }
+
+        .form-section {
+            padding: 0;
+            margin-bottom: 0;
+            background-color: transparent;
+            border: none;
+            box-shadow: none;
+            border-radius: 0;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group input[type="text"],
+        .form-group input[type="number"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: var(--background-white);
+            color: var(--text-dark);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-group .non-editable-field {
+            background-color: var(--input-disabled-bg);
+            color: var(--input-disabled-text);
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            width: 100%;
+            font-weight: bold;
+        }
+        
+        .form-group .non-editable-label {
+            color: var(--text-light);
+        }
+
+        .identity-display-group {
+            margin-bottom: 8px;
+        }
+        
+        .identity-display-group label {
+            font-size: 0.85rem;
+            margin-bottom: 3px;
+        }
+        
+        .identity-display-group .non-editable-field {
+            padding: 8px 12px;
+            font-size: 0.95rem;
+        }
+
+        .photo-gallery-section {
+            margin-bottom: 30px;
+            border-bottom: 1px dashed var(--border-light);
+            padding-bottom: 20px;
+        }
+        
+        .photo-gallery-section:last-of-type {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        
+        .photo-gallery-section label {
+            font-size: 1.1rem;
+            color: var(--brand-primary-red);
+            margin-bottom: 15px;
+            display: block;
+        }
+        
+        .photo-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 15px;
+            justify-content: flex-start;
+        }
+        
+        .photo-square, .photo-placeholder {
+            width: 80px;
+            height: 80px;
+            background-color: #f0f0f0;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-light);
+            font-size: 0.8em;
+            text-align: center;
+        }
+        
+        .photo-square img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .add-photo-button {
+            cursor: pointer;
+            background-color: #e6e6e6;
+            flex-direction: column;
+            color: var(--brand-primary-red);
+            transition: background-color 0.2s ease;
+        }
+        
+        .add-photo-button .material-icons {
+            font-size: 36px;
+            margin-bottom: 5px;
+        }
+        
+        .add-photo-button:hover {
+            background-color: #dcdcdc;
+        }
+        
+        .manage-photos-button {
+            background-color: var(--brand-primary-red);
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+            display: block;
+            width: fit-content;
+        }
+        
+        .manage-photos-button:hover {
+            background-color: #e62e5c;
+        }
+
+        .interests-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            padding-top: 0.5rem;
+            border-top: 1px dashed var(--border-light);
+        }
+        
+        .interest-tag {
+            background-color: #e0e0e0;
+            color: var(--text-dark);
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+        }
+        
+        .interest-tag:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .interest-tag.selected {
+            background-color: var(--brand-primary-red);
+            color: white;
+        }
+
+        .save-changes-button {
+            background-color: var(--brand-primary-red);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto;
+            margin-top: 20px;
+        }
+        
+        .save-changes-button:hover {
+            background-color: #e62e5c;
+        }
+        
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: var(--brand-primary-red);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #fce4ec;
+            transition: background-color 0.3s ease;
+        }
+        .back-link a:hover {
+            background-color: #f8bbd0;
+        }
+
+        @media (max-width: 768px) {
+            .manage-photos-button {
+                width: 100%;
+            }
+            
+            .save-changes-button {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:index' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button" href="{% url 'pages:dashboard' %}">Dashboard</a>
+</div>
+</header>
+<div class="container">
+<h1>Edit My Profile</h1>
+<p class="intro">Update your profile details to better connect with your matches.</p>
+<form id="editProfileForm">
+<div class="profile-section" id="identity-section">
+<div class="profile-section-header expanded">
+<h3>Your Identity (Non-Editable)</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content expanded">
+<div class="form-group identity-display-group">
+<label class="non-editable-label">Username:</label>
+<div class="non-editable-field" id="display_username"></div>
+</div>
+<div class="form-group identity-display-group">
+<label class="non-editable-label">Email:</label>
+<div class="non-editable-field" id="display_email"></div>
+</div>
+<div class="form-group identity-display-group">
+<label class="non-editable-label">Date of Birth:</label>
+<div class="non-editable-field" id="display_dob"></div>
+</div>
+<div class="form-group identity-display-group">
+<label class="non-editable-label">Age:</label>
+<div class="non-editable-field" id="display_age"></div>
+</div>
+</div>
+</div>
+<div class="profile-section" id="photos-about-section">
+<div class="profile-section-header expanded">
+<h3>Profile Photos &amp; About Me</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content expanded">
+<div class="photo-gallery-section">
+<label>Public Photos (<span id="publicPhotoCount">0</span>/<span id="publicPhotoMax">6</span> Max)</label>
+<div class="photo-grid" id="publicPhotoGrid"></div>
+<button class="manage-photos-button" data-photo-type="public" type="button">Manage Public Photos</button>
+</div>
+<div class="photo-gallery-section">
+<label>Private Photos (<span id="privatePhotoCount">0</span>/<span id="privatePhotoMax">4</span> Max)</label>
+<div class="photo-grid" id="privatePhotoGrid"></div>
+<button class="manage-photos-button" data-photo-type="private" type="button">Manage Private Photos</button>
+</div>
+<div class="form-group">
+<label for="about_me">About Me:</label>
+<textarea id="about_me" name="about_me" placeholder="Tell us about yourself and what makes you unique."></textarea>
+</div>
+<div class="form-group">
+<label for="taglineInput">Your Tagline:</label>
+<input id="taglineInput" name="tagline" placeholder="Simple as can be" type="text"/>
+</div>
+<div class="form-group">
+<label for="offerBio">What do you have to offer?</label>
+<textarea id="offerBio" name="offer_bio" placeholder="A simple person"></textarea>
+</div>
+<div class="form-group">
+<label for="lookingForBio">What are you looking for?</label>
+<textarea id="lookingForBio" name="looking_for_bio" placeholder="Simple stuff"></textarea>
+</div>
+</div>
+</div>
+<div class="profile-section" id="basic-info-section">
+<div class="profile-section-header">
+<h3>Basic Information</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="height">Height:</label>
+<select id="height" name="height">
+<option value="">-- Select Height --</option>
+<option value="150cm">150 cm (4'11")</option>
+<option value="155cm">155 cm (5'1")</option>
+<option value="160cm">160 cm (5'3")</option>
+<option value="165cm">165 cm (5'5")</option>
+<option value="170cm">170 cm (5'7")</option>
+<option value="175cm">175 cm (5'9")</option>
+<option value="180cm">180 cm (5'11")</option>
+<option value="185cm">185 cm (6'1")</option>
+<option value="190cm">190 cm (6'3")</option>
+<option value="195cm">195 cm (6'5")</option>
+<option value="200cm">200 cm (6'7")</option>
+</select>
+</div>
+<div class="form-group">
+<label for="body_type">Body Type:</label>
+<select id="body_type" name="body_type">
+<option value="">-- Select Body Type --</option>
+<option value="slim">Slim</option>
+<option value="average">Average</option>
+<option value="athletic">Athletic</option>
+<option value="curvy">Curvy</option>
+<option value="muscular">Muscular</option>
+</select>
+</div>
+<div class="form-group">
+<label for="hair_color">Hair Color:</label>
+<select id="hair_color" name="hair_color">
+<option value="">-- Select Hair Color --</option>
+<option value="blonde">Blonde</option>
+<option value="brown">Brown</option>
+<option value="black">Black</option>
+<option value="red">Red</option>
+<option value="auburn">Auburn</option>
+<option value="grey">Grey</option>
+<option value="other">Other</option>
+</select>
+</div>
+<div class="form-group">
+<label for="eye_color">Eye Color:</label>
+<select id="eye_color" name="eye_color">
+<option value="">-- Select Eye Color --</option>
+<option value="blue">Blue</option>
+<option value="brown">Brown</option>
+<option value="green">Green</option>
+<option value="hazel">Hazel</option>
+<option value="grey">Grey</option>
+<option value="other">Other</option>
+</select>
+</div>
+<div class="form-group">
+<label for="location">Location:</label>
+<select id="location" name="location">
+<option value="">-- Select Location --</option>
+<option value="Sydney">Sydney, NSW</option>
+<option value="Melbourne">Melbourne, VIC</option>
+<option value="Brisbane">Brisbane, QLD</option>
+<option value="Perth">Perth, WA</option>
+<option value="Adelaide">Adelaide, SA</option>
+<option value="Canberra">Canberra, ACT</option>
+<option value="Hobart">Hobart, TAS</option>
+<option value="Darwin">Darwin, NT</option>
+<option value="Gold Coast">Gold Coast, QLD</option>
+<option value="Sunshine Coast">Sunshine Coast, QLD</option>
+<option value="Newcastle">Newcastle, NSW</option>
+<option value="Geelong">Geelong, VIC</option>
+</select>
+</div>
+<div class="form-group">
+<label for="piercings">Piercings:</label>
+<select id="piercings" name="piercings">
+<option value="">-- Select --</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+</select>
+</div>
+<div class="form-group">
+<label for="tattoos">Tattoos:</label>
+<select id="tattoos" name="tattoos">
+<option value="">-- Select --</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+</select>
+</div>
+</div>
+</div>
+<div class="profile-section" id="lifestyle-interests-section">
+<div class="profile-section-header">
+<h3>Lifestyle &amp; Interests</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="exercise_habits">Exercise Habits:</label>
+<select id="exercise_habits" name="exercise_habits">
+<option value="">-- Select --</option>
+<option value="active">Active (daily)</option>
+<option value="moderate">Moderate (few times a week)</option>
+<option value="occasional">Occasional</option>
+<option value="rarely">Rarely</option>
+</select>
+</div>
+<div class="form-group">
+<label for="living_situation">Living Situation:</label>
+<select id="living_situation" name="living_situation">
+<option value="">-- Select --</option>
+<option value="alone">Alone</option>
+<option value="roommates">With roommates</option>
+<option value="family">With family</option>
+<option value="partner">With partner</option>
+</select>
+</div>
+<div class="form-group">
+<label for="smoking_habits">Smoking Habits:</label>
+<select id="smoking_habits" name="smoking_habits">
+<option value="">-- Select --</option>
+<option value="non-smoker">Non-smoker</option>
+<option value="socially">Socially</option>
+<option value="regular">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label for="drinking_habits">Drinking Habits:</label>
+<select id="drinking_habits" name="drinking_habits">
+<option value="">-- Select --</option>
+<option value="non-drinker">Non-drinker</option>
+<option value="socially">Socially</option>
+<option value="regular">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label>Interests:</label>
+<div class="checkbox-group">
+<label><input name="interests" type="checkbox" value="hiking"/> Hiking</label>
+<label><input name="interests" type="checkbox" value="reading"/> Reading</label>
+<label><input name="interests" type="checkbox" value="cooking"/> Cooking</label>
+<label><input name="interests" type="checkbox" value="travel"/> Travel</label>
+<label><input name="interests" type="checkbox" value="gaming"/> Gaming</label>
+<label><input name="interests" type="checkbox" value="movies"/> Movies</label>
+<label><input name="interests" type="checkbox" value="music"/> Music</label>
+<label><input name="interests" type="checkbox" value="sports"/> Sports</label>
+<label><input name="interests" type="checkbox" value="art"/> Art</label>
+<label><input name="interests" type="checkbox" value="photography"/> Photography</label>
+<label><input name="interests" type="checkbox" value="fashion"/> Fashion</label>
+<label><input name="interests" type="checkbox" value="fitness"/> Fitness</label>
+</div>
+</div>
+</div>
+</div>
+<div class="profile-section" id="looking-for-preferences-section">
+<div class="profile-section-header">
+<h3>Looking For (Preferences)</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<p style="margin-bottom: 1rem; color: var(--text-light);">By filling in this section, we can help sort profiles that other users have said they are looking for, improving your matches!</p>
+<div class="form-group">
+<label for="lookingForAgeRange">Age Range:</label>
+<select id="lookingForAgeRange" name="looking_for_age_range">
+<option value="">Any</option>
+<option value="18-24">18-24</option>
+<option value="25-34">25-34</option>
+<option value="35-44">35-44</option>
+<option value="45-54">45-54</option>
+<option value="55+">55+</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForBodyType">Body Type:</label>
+<select id="lookingForBodyType" name="looking_for_body_type">
+<option value="">Any</option>
+<option value="athletic">Athletic</option>
+<option value="average">Average</option>
+<option value="curvy">Curvy</option>
+<option value="slim">Slim</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForDrinking">Drinking Habits:</label>
+<select id="lookingForDrinking" name="looking_for_drinking">
+<option value="">Any</option>
+<option value="never">Never</option>
+<option value="socially">Socially</option>
+<option value="regularly">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForSmoking">Smoking Habits:</label>
+<select id="lookingForSmoking" name="looking_for_smoking">
+<option value="">Any</option>
+<option value="never">Never</option>
+<option value="socially">Socially</option>
+<option value="regularly">Regularly</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForGenerosity">Values Generosity:</label>
+<select id="lookingForGenerosity" name="looking_for_generosity">
+<option value="">Any</option>
+<option value="highly_valued">Highly Valued</option>
+<option value="appreciated">Appreciated</option>
+<option value="not_a_focus">Not a Focus</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForTravel">Enjoys Travel:</label>
+<select id="lookingForTravel" name="looking_for_travel">
+<option value="">Any</option>
+<option value="frequently">Frequently</option>
+<option value="occasionally">Occasionally</option>
+<option value="rarely">Rarely</option>
+</select>
+</div>
+<div class="form-group">
+<label for="lookingForLuxury">Appreciates Fine Dining/Luxury Experiences:</label>
+<select id="lookingForLuxury" name="looking_for_luxury">
+<option value="">Any</option>
+<option value="yes">Yes</option>
+<option value="no">No</option>
+<option value="sometimes">Sometimes</option>
+</select>
+</div>
+<div class="form-group">
+<label><input id="lookingForSupportive" name="looking_for_supportive" type="checkbox" value="true"/> Seeks a Mutually Supportive Relationship</label>
+</div>
+<div class="form-group">
+<label><input id="lookingForDiverse" name="looking_for_diverse" type="checkbox" value="true"/> Open to Diverse Relationship Structures</label>
+</div>
+<div class="form-group">
+<label>Interests (Select one or more):</label>
+<div class="interests-tags" id="looking-for-interests-tags">
+<span class="interest-tag" data-interest="reading">Reading</span>
+<span class="interest-tag" data-interest="hiking">Hiking</span>
+<span class="interest-tag" data-interest="cooking">Cooking</span>
+<span class="interest-tag" data-interest="movies">Movies</span>
+<span class="interest-tag" data-interest="gaming">Gaming</span>
+<span class="interest-tag" data-interest="travel">Travel</span>
+<span class="interest-tag" data-interest="music">Music</span>
+<span class="interest-tag" data-interest="sports">Sports</span>
+</div>
+</div>
+</div>
+</div>
+<button class="save-changes-button" type="submit">Save Changes</button>
+</form>
+<p class="back-link"><a href="{% url 'pages:my_profile' %}">← Back to Profile Options</a></p>
+</div>
+<script>
+        // Toggle section function
+        function toggleSection(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const isExpanded = headerElement.classList.contains('expanded');
+            
+            // Toggle expanded state
+            headerElement.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+            
+            // Set max-height for smooth transition
+            if (!isExpanded) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            } else {
+                content.style.maxHeight = '0';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const editProfileForm = document.getElementById('editProfileForm');
+
+            // Dummy user data to pre-populate fields
+            const currentUserProfile = {
+                username: "AngeletteAthena",
+                email: "angelette.a@example.com",
+                dob: "2000-01-15",
+                age: 24,
+                about_me: "Passionate about exploring new places and trying new cuisines. Looking for someone genuine to share experiences with.",
+                tagline: "Simple as can be",
+                offer_bio: "A simple person",
+                looking_for_bio: "Simple stuff",
+                height: "165cm",
+                body_type: "average",
+                hair_color: "blonde",
+                eye_color: "blue",
+                location: "East Gosford",
+                piercings: "yes",
+                tattoos: "no",
+                exercise_habits: "moderate",
+                living_situation: "alone",
+                smoking_habits: "non-smoker",
+                drinking_habits: "socially",
+                interests: ["reading", "travel", "cooking", "movies"],
+                publicPhotos: [
+                    "https://via.placeholder.com/80/ff3366/FFFFFF?text=Pub1",
+                    "https://via.placeholder.com/80/ff3366/FFFFFF?text=Pub2"
+                ],
+                privatePhotos: [
+                    "https://via.placeholder.com/80/007bff/FFFFFF?text=Priv1",
+                ],
+                maxPublicPhotos: 6,
+                maxPrivatePhotos: 4,
+                looking_for_age_range: "25-34",
+                looking_for_body_type: "athletic",
+                looking_for_drinking: "socially",
+                looking_for_smoking: "never",
+                looking_for_generosity: "highly_valued",
+                looking_for_travel: "frequently",
+                looking_for_luxury: "yes",
+                looking_for_supportive: true,
+                looking_for_diverse: false,
+                looking_for_interests: ["hiking", "music"]
+            };
+
+            // Populate non-editable fields
+            document.getElementById('display_username').textContent = currentUserProfile.username;
+            document.getElementById('display_email').textContent = currentUserProfile.email;
+            document.getElementById('display_dob').textContent = currentUserProfile.dob;
+            document.getElementById('display_age').textContent = currentUserProfile.age;
+
+            // Pre-populate editable form fields
+            document.getElementById('about_me').value = currentUserProfile.about_me;
+            document.getElementById('taglineInput').value = currentUserProfile.tagline;
+            document.getElementById('offerBio').value = currentUserProfile.offer_bio;
+            document.getElementById('lookingForBio').value = currentUserProfile.looking_for_bio;
+            document.getElementById('height').value = currentUserProfile.height;
+            document.getElementById('body_type').value = currentUserProfile.body_type;
+            document.getElementById('hair_color').value = currentUserProfile.hair_color;
+            document.getElementById('eye_color').value = currentUserProfile.eye_color;
+            document.getElementById('location').value = currentUserProfile.location;
+            document.getElementById('piercings').value = currentUserProfile.piercings;
+            document.getElementById('tattoos').value = currentUserProfile.tattoos;
+            
+            document.getElementById('exercise_habits').value = currentUserProfile.exercise_habits;
+            document.getElementById('living_situation').value = currentUserProfile.living_situation;
+            document.getElementById('smoking_habits').value = currentUserProfile.smoking_habits;
+            document.getElementById('drinking_habits').value = currentUserProfile.drinking_habits;
+
+            // Pre-populate interests checkboxes
+            currentUserProfile.interests.forEach(interest => {
+                const checkbox = document.querySelector(`input[name="interests"][value="${interest}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+
+            // Pre-populate Looking For Preferences
+            document.getElementById('lookingForAgeRange').value = currentUserProfile.looking_for_age_range;
+            document.getElementById('lookingForBodyType').value = currentUserProfile.looking_for_body_type;
+            document.getElementById('lookingForDrinking').value = currentUserProfile.looking_for_drinking;
+            document.getElementById('lookingForSmoking').value = currentUserProfile.looking_for_smoking;
+            document.getElementById('lookingForGenerosity').value = currentUserProfile.looking_for_generosity;
+            document.getElementById('lookingForTravel').value = currentUserProfile.looking_for_travel;
+            document.getElementById('lookingForLuxury').value = currentUserProfile.looking_for_luxury;
+            document.getElementById('lookingForSupportive').checked = currentUserProfile.looking_for_supportive;
+            document.getElementById('lookingForDiverse').checked = currentUserProfile.looking_for_diverse;
+
+            // Pre-populate Looking For Interests tags
+            currentUserProfile.looking_for_interests.forEach(interest => {
+                const tag = document.querySelector(`#looking-for-interests-tags .interest-tag[data-interest="${interest}"]`);
+                if (tag) {
+                    tag.classList.add('selected');
+                }
+            });
+
+            // Function to render photos
+            function renderPhotos(photoArray, containerId, maxPhotos) {
+                const container = document.getElementById(containerId);
+                container.innerHTML = '';
+
+                // Render existing photos
+                photoArray.forEach(photoUrl => {
+                    const square = document.createElement('div');
+                    square.classList.add('photo-square');
+                    const img = document.createElement('img');
+                    img.src = photoUrl;
+                    img.alt = "Profile Photo";
+                    square.appendChild(img);
+                    container.appendChild(square);
+                });
+
+                // Add empty "Add Photo" squares
+                for (let i = photoArray.length; i < maxPhotos; i++) {
+                    const addButton = document.createElement('div');
+                    addButton.classList.add('photo-placeholder', 'add-photo-button');
+                    const photoTypeLabel = containerId.includes('public') ? 'Public' : 'Private';
+                    addButton.innerHTML = `<span class="material-icons">add_a_photo</span> Add ${photoTypeLabel} Photo`;
+                    addButton.addEventListener('click', () => alert(`Opening file upload dialog for a new ${photoTypeLabel.toLowerCase()} photo.`));
+                    container.appendChild(addButton);
+                }
+
+                // Update count
+                document.getElementById(containerId.replace('Grid', 'Count')).textContent = photoArray.length;
+                document.getElementById(containerId.replace('Grid', 'Max')).textContent = maxPhotos;
+            }
+
+            // Initial render of photos
+            renderPhotos(currentUserProfile.publicPhotos, 'publicPhotoGrid', currentUserProfile.maxPublicPhotos);
+            renderPhotos(currentUserProfile.privatePhotos, 'privatePhotoGrid', currentUserProfile.maxPrivatePhotos);
+
+            // Handle form submission
+            editProfileForm.addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                // Collect form data here (as in your original code)
+                alert("Profile changes saved! (In a real app, this would send data to server)");
+            });
+
+            // Initialize all section headers
+            document.querySelectorAll('.profile-section-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    toggleSection(this);
+                });
+                
+                // Set initial state
+                const content = header.nextElementSibling;
+                if (header.classList.contains('expanded')) {
+                    content.style.maxHeight = content.scrollHeight + 'px';
+                } else {
+                    content.style.maxHeight = '0';
+                }
+            });
+
+            // Initialize interest tags
+            document.querySelectorAll('#looking-for-interests-tags .interest-tag').forEach(tag => {
+                tag.addEventListener('click', function() {
+                    this.classList.toggle('selected');
+                });
+            });
+        });
+    </script>
+</body>
+</html>

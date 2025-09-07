@@ -1,0 +1,324 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Hot Dates - GR8Date</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        :root {
+            --brand-primary-red: #ff3366;
+            --border-light: #ddd;
+            --background-white: #fff;
+            --text-dark: #333;
+            --text-light: #777;
+            --button-accept: #4CAF50;
+            --button-deny: #f44336;
+            --button-decline: #f44336;
+            --button-text-light: #fff;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        
+        /* --- Header Styles --- */
+        .app-header {
+          background-color: var(--background-white);
+          border-bottom: 1px solid var(--border-light);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* --- New Logo Styles --- */
+        .logo-img {
+          height: 40px;
+          width: auto;
+          vertical-align: middle;
+          display: block;
+        }
+        .logo-mobile {
+          display: none;
+        }
+        
+        @media (max-width: 600px) {
+          .logo-desktop {
+            display: none;
+          }
+          .logo-mobile {
+            display: block;
+          }
+          .logo-img {
+            height: 35px;
+          }
+        }
+
+        .app-header .auth-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .app-header .auth-button {
+          background-color: var(--brand-primary-red);
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          transition: background-color 0.3s ease;
+        }
+        .app-header .auth-button:hover {
+          background-color: #e62e5c;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff3366;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .event-listing {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .event-listing h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.0em;
+            margin-bottom: 5px;
+        }
+        .event-listing p {
+            font-size: 0.85em;
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .event-listing .details {
+            font-weight: bold;
+            color: #ff3366;
+        }
+        .event-listing .actions {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+            gap: 8px;
+        }
+        .event-listing .actions button {
+            background-color: #ff3366;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em;
+            transition: background-color 0.3s ease;
+        }
+        .event-listing .actions button:hover {
+            background-color: #e62e5c;
+        }
+        .event-listing .actions button.green-btn {
+            background-color: #4CAF50;
+        }
+        .event-listing .actions button.green-btn:hover {
+            background-color: #45a049;
+        }
+        .event-listing .actions button.blue-btn {
+            background-color: #007bff;
+        }
+        .event-listing .actions button.blue-btn:hover {
+            background-color: #0056b3;
+        }
+        .post-new-date-btn {
+            display: block;
+            width: fit-content;
+            margin: 0 auto 20px auto;
+            background-color: #ff3366;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+        .post-new-date-btn:hover {
+            background-color: #e62e5c;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: var(--brand-primary-red);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #fce4ec;
+            transition: background-color 0.3s ease;
+        }
+        .back-link a:hover {
+            background-color: #f8bbd0;
+        }
+        
+        /* --- Mobile Responsive Adjustments --- */
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px 15px;
+                margin: 15px auto;
+            }
+            .event-listing .actions {
+                justify-content: center;
+            }
+            .event-listing .actions button {
+                flex-grow: 1;
+                min-width: 100px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:index' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button" href="{% url 'pages:dashboard' %}">Dashboard</a>
+</div>
+</header>
+<div class="container">
+<h1>All Hot Dates &amp; Local Events</h1>
+<p style="text-align: center; font-size: 0.9em;">Find and join exciting events or manage your date invitations.</p>
+<a class="post-new-date-btn" href="{% url 'pages:dashboard' %}">Post a New Hot Date</a>
+<h2>Upcoming Events</h2>
+<div class="event-listing">
+<h3>Coffee &amp; Chat at Darling Harbour (Sydney)</h3>
+<p class="details">Organized by Alex (32) | Today, 2:00 PM - 3:30 PM | 1 spot left!</p>
+<p>A relaxed afternoon coffee to meet someone new. Casual conversation and great views.</p>
+<div class="actions">
+<button>View Details</button>
+<button class="green-btn">Join Event</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<div class="event-listing">
+<h3>Drinks Night in Fitzroy (Melbourne)</h3>
+<p class="details">Organized by Chloe (26) | Tonight, 7:00 PM - 9:00 PM | Group Event</p>
+<p>Join us for a chill evening of drinks and good vibes at "The Cozy Corner" bar.</p>
+<div class="actions">
+<button>View Details</button>
+<button class="green-btn">Join Event</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<div class="event-listing">
+<h3>Outdoor Yoga Session (Brisbane)</h3>
+<p class="details">Organized by Sophie (24) | Saturday, 9:00 AM | Free &amp; Open</p>
+<p>Start your weekend with some refreshing outdoor yoga. All skill levels welcome!</p>
+<div class="actions">
+<button>View Details</button>
+<button class="green-btn">Join Event</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<div class="event-listing">
+<h3>Art Gallery Exploration (Adelaide)</h3>
+<p class="details">Organized by Emily (25) | Sunday, 11:00 AM - 1:00 PM | 3 spots left!</p>
+<p>Discover new artists and discuss our favorite pieces. Followed by a casual lunch.</p>
+<div class="actions">
+<button>View Details</button>
+<button class="green-btn">Join Event</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<h2>Your Invitations</h2>
+<div class="event-listing">
+<h3>Dinner Invitation from John (Melbourne)</h3>
+<p class="details">From John (32) | Friday, 7:30 PM at "The Italian Place"</p>
+<p style="font-style: italic; color: #888;">Status: Pending your response.</p>
+<div class="actions">
+<button class="green-btn">Accept</button>
+<button>Decline</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<div class="event-listing">
+<h3>Movie Night Invite from Jane (Sydney)</h3>
+<p class="details">From Jane (28) | Accepted! | Saturday, 8:00 PM, "The Grand Cinema"</p>
+<p>You've accepted Jane's invite to see 'The Sci-Fi Thriller'. Enjoy the show!</p>
+<div class="actions">
+<button>View Details</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<p style="text-align: center; font-size: 0.9em; color: #777;">No more hot dates available right now. Check back soon!</p>
+<p class="back-link"><a href="{% url 'pages:dashboard' %}">← Back to Dashboard</a></p>
+</div>
+<script>
+        // Example of how you might handle button clicks on this full page.
+        document.querySelectorAll('.event-listing .actions button').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                const eventTitle = this.closest('.event-listing').querySelector('h3').textContent;
+
+                if (action === "Profile") {
+                    // Extract the name of the organizer/inviter from the title or details
+                    let userName = "unknown user";
+                    if (eventTitle.includes("Organized by ")) {
+                        userName = eventTitle.split("Organized by ")[1].split(" (")[0];
+                    } else if (eventTitle.includes("Invitation from ")) {
+                        userName = eventTitle.split("Invitation from ")[1].split(" (")[0];
+                    } else if (eventTitle.includes("Invite from ")) {
+                        userName = eventTitle.split("Invite from ")[1].split(" (")[0];
+                    }
+                    alert(`Navigating to profile for "${userName}"\n(This would link to the user's profile!)`);
+                    // In a real application, you would change the window location:
+                    // window.location.href = 'profile.html?user=' + encodeURIComponent(userName);
+                } else {
+                    alert(`Action: "${action}" on "${eventTitle}"\n(This would send a request to the server!)`);
+
+                    // For demonstration, remove the event/invitation after an action
+                    if (action === "Accept" || action === "Decline" || action === "Join Event" || action === "View Details") {
+                        // In a real app, you'd update the event's status, not necessarily remove it
+                        // For demo, if it's an invitation and you accept/decline, it might disappear from this list
+                        // or change its status. If joining an event, you might be marked as attending.
+                        if (action === "Accept" || action === "Decline") {
+                            this.closest('.event-listing').remove();
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,60 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Confirm Logout • GR8DATE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
+      background: #fafafa;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    .card {
+      background: #fff;
+      padding: 32px;
+      border-radius: 16px;
+      box-shadow: 0 6px 20px rgba(0,0,0,.1);
+      text-align: center;
+      max-width: 360px;
+    }
+    h1 {margin: 0 0 12px;}
+    p {margin-bottom: 20px;color:#444;}
+    .btn {
+      display: inline-block;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-confirm {
+      background: #d33;
+      color: #fff;
+    }
+    .btn-cancel {
+      background: #eee;
+      color: #111;
+      margin-left: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Confirm Logout</h1>
+    <p>Are you sure you want to log out?</p>
+    <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-confirm">Yes, Log Out</button>
+      <a href="{% url 'pages:dashboard' %}" class="btn btn-cancel">Cancel</a>
+    </form>
+  </div>
+</body>
+</html>
+

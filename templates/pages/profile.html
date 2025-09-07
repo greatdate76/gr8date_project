@@ -1,0 +1,398 @@
+{% load static %}
+{% now 'U' as cachebust %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ profile.display_name }} • GR8DATE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{% static 'css/base.css' %}?v={{ cachebust }}" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    :root { --text:#111; --muted:#666; --border:#e6e6e6; --bg:#fafafa; --card:#fff; --brand:#e0007a; }
+    html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif}
+    .wrap{max-width:1100px;margin:20px auto;padding:0 14px}
+    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .left,.right{display:flex;gap:10px;align-items:center}
+    .icon-btn{display:inline-flex;align-items:center;justify-content:center;width:42px;height:42px;border-radius:12px;border:1px solid var(--border);background:#fff;color:#111;text-decoration:none;cursor:pointer;transition:.15s transform,.15s box-shadow}
+    .icon-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
+    .material-icons{font-size:22px;line-height:1}
+    .icon-rotate-90{transform:rotate(90deg)}
+    .navrow{display:flex;gap:10px;align-items:center;justify-content:center;margin:2px 0 12px}
+    .navbtn{display:inline-flex;gap:8px;align-items:center;justify-content:center;padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;text-decoration:none;color:#111}
+    .navbtn.accent{border-color:var(--brand);color:#fff;background:var(--brand)}
+    .navbtn.disabled{opacity:.45;pointer-events:none}
+    .head{display:flex;gap:18px;align-items:center;margin:16px 0}
+    .avatar{
+      width:120px;height:120px;border-radius:50%;
+      object-fit:cover;border:2px solid #eee;background:#f6f6f6;flex:0 0 auto
+    }
+    .meta{color:var(--muted)}
+    h1{margin:0 0 4px}
+    .actions{display:flex;gap:10px;margin:10px 0 6px}
+    .actions .icon-btn{width:auto;min-width:42px;padding:0 12px;gap:8px}
+    .actions .material-icons{font-size:20px}
+    .photo-wrap{display:grid;grid-template-columns:280px 1fr;gap:14px}
+    @media(max-width:760px){.photo-wrap{grid-template-columns:1fr}}
+    .profile-photo{border:1px solid var(--border);border-radius:16px;overflow:hidden;background:#f8f8f8}
+    .profile-photo img{display:block;width:100%;height:auto}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+    .tile{position:relative;border-radius:16px;overflow:hidden;background:#f8f8f8;border:1px solid #e6e6ef;cursor:pointer}
+    .tile img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:1/1}
+    .tile.private{cursor:default}
+    .tile.private img{filter:blur(12px);transform:scale(1.02)}
+    .private .veil{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:700;background:rgba(0,0,0,.45);text-align:center;padding:10px}
+    .private .veil .req{margin-top:8px;padding:6px 10px;border-radius:10px;border:1px solid #fff;background:#fff;color:#111;font-weight:700}
+    .lightbox{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;z-index:9999}
+    .lightbox.open{display:flex}
+    .lightbox img{max-width:92vw;max-height:84vh;border-radius:8px;display:block}
+    .lb-controls{position:absolute;top:50%;left:0;right:0;display:flex;justify-content:space-between;transform:translateY(-50%);padding:0 20px;gap:10px}
+    .lb-btn{background:rgba(255,255,255,.9);border:none;border-radius:8px;padding:10px 14px;font-weight:700;cursor:pointer}
+    .lb-close{position:absolute;top:18px;right:18px;background:#fff;border:none;border-radius:999px;font-weight:800;padding:8px 12px;cursor:pointer}
+    .caption{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.55);color:#fff;padding:8px 12px;border-radius:8px;max-width:80vw}
+    html.gd-lock { overflow: hidden; }
+
+    /* NEW: Mobile-only fixed bottom bar for Back/Prev/Next (thumb-friendly) */
+    @media (max-width: 760px) {
+      /* Make room so the fixed bar doesn’t cover content (supports iPhone safe area) */
+      .wrap { padding-bottom: calc(76px + env(safe-area-inset-bottom)); }
+
+      .navrow{
+        position: fixed;
+        left: 0; right: 0; bottom: 0;
+        z-index: 1000;
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
+        margin: 0; /* override original margin */
+        background: rgba(255,255,255,.92);
+        backdrop-filter: blur(6px);
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -6px 18px rgba(0,0,0,.06);
+      }
+
+      /* Slightly smaller, still accessible (>=44px tap height) */
+      .navbtn{
+        flex: 1 1 auto;
+        min-height: 44px;
+        padding: 6px 10px;
+        border-radius: 9px;
+        font-size: 0.95rem;
+      }
+      .navbtn .material-icons{ font-size: 20px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="left">
+        {% include "pages/partials/logo_noclick.html" %}
+      </div>
+      <div class="right">
+        <a class="icon-btn" href="{% url 'pages:dashboard' %}?page=1" title="Dashboard start" aria-label="Dashboard start">
+          <span class="material-icons icon-rotate-90">u_turn_left</span>
+        </a>
+        <button class="icon-btn" id="openSearch" type="button" title="Search" aria-label="Search">
+          <span class="material-icons">search</span>
+        </button>
+        <a class="icon-btn" href="{% url 'pages:messages' %}" title="Messages" aria-label="Messages">
+          <span class="material-icons">mail</span>
+        </a>
+        <button class="icon-btn" type="button" title="Matches (coming soon)" aria-label="Matches">
+          <span class="material-icons">people</span>
+        </button>
+        <a class="icon-btn" href="{% url 'pages:hot_dates' %}" title="Hot Dates" aria-label="Hot Dates">
+          <span class="material-icons">whatshot</span>
+        </a>
+        <a class="icon-btn" href="{% url 'pages:my_profile_edit' %}" title="Edit Profile" aria-label="Edit Profile">
+          <span class="material-icons">person</span>
+        </a>
+        <button class="icon-btn" type="button" data-logout-open title="Log Out" aria-label="Log out">
+          <span class="material-icons">logout</span>
+        </button>
+      </div>
+    </header>
+
+    <div class="navrow">
+      <a id="gd-back" class="navbtn" href="{% url 'pages:dashboard' %}?page=1">
+        <span class="material-icons">arrow_back</span> Back
+      </a>
+      <a id="gd-prev" class="navbtn{% if not prev_url %} disabled{% endif %}" href="{{ prev_url|default:'#' }}" {% if not prev_url %}aria-disabled="true"{% endif %}>
+        <span class="material-icons">chevron_left</span> Prev
+      </a>
+      <a id="gd-next" class="navbtn accent{% if not next_url %} disabled{% endif %}" href="{{ next_url|default:'#' }}" {% if not next_url %}aria-disabled="true"{% endif %}>
+        Next <span class="material-icons">chevron_right</span>
+      </a>
+    </div>
+
+    <section class="head">
+      {% if profile.primary_image %}
+        <img class="avatar" src="{{ profile.primary_image.url }}" alt="{{ profile.display_name }}">
+      {% else %}
+        {% with fp=profile.public_images.first %}
+          {% if fp and fp.image %}
+            <img class="avatar" src="{{ fp.image.url }}" alt="{{ profile.display_name }}">
+          {% else %}
+            <div class="avatar" role="img" aria-label="No profile image"></div>
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+      <div>
+        <h1>{{ profile.display_name }}{% if profile.age %}, {{ profile.age }}{% endif %}</h1>
+        <div class="meta">{{ profile.location }}</div>
+        <div class="actions">
+          <form action="{% url 'pages:toggle_favorite' profile.pk %}" method="post" style="display:inline">
+            {% csrf_token %}
+            <button class="icon-btn" type="submit" title="Favourite">
+              <span class="material-icons" {% if is_favorited %}style="color:#e0245e"{% endif %}>favorite</span>
+            </button>
+          </form>
+          <a class="icon-btn" href="{% url 'pages:messages' %}" title="Message">
+            <span class="material-icons">mail</span>
+          </a>
+          <form action="{% url 'pages:block_profile' profile.pk %}" method="post" style="display:inline">
+            {% csrf_token %}
+            <button class="icon-btn" type="submit" title="Block">
+              <span class="material-icons" {% if is_blocked %}style="color:#555"{% endif %}>block</span>
+            </button>
+          </form>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="photo-wrap">
+        <div class="profile-photo">
+          {% if profile.primary_image %}
+            <img src="{{ profile.primary_image.url }}" alt="{{ profile.display_name }}">
+          {% else %}
+            {% with fp=photos_public.first %}
+              {% if fp and fp.image %}
+                <img src="{{ fp.image.url }}" alt="{{ profile.display_name }}">
+              {% else %}
+                <img src="{% static 'images/placeholders/profile-4x5.png' %}" alt="{{ profile.display_name }}">
+              {% endif %}
+            {% endwith %}
+          {% endif %}
+        </div>
+
+        {% if thumbs %}
+          <div>
+            <h2>Photos</h2>
+            <div class="grid" id="public-grid">
+              {% for ph in thumbs %}
+                {% if ph.image and ph.image.name %}
+                  <div class="tile" data-index="{{ forloop.counter0 }}" data-src="{{ ph.image.url }}">
+                    <img src="{{ ph.image.url }}" alt="{{ profile.display_name }}">
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </div>
+        {% endif %}
+      </div>
+    </section>
+
+    {% if photos_private %}
+      <section>
+        <h2>Private Photos</h2>
+        {% if allow_private %}
+          <div class="grid" id="private-grid">
+            {% for ph in photos_private %}
+              {% if ph.image and ph.image.name %}
+                <div class="tile" data-src="{{ ph.image.url }}">
+                  <img src="{{ ph.image.url }}" alt="{{ profile.display_name }} private photo">
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% else %}
+          <div class="grid">
+            {% for ph in photos_private %}
+              {% if ph.image and ph.image.name %}
+                <div class="tile private" aria-label="Private photo">
+                  <img src="{{ ph.image.url }}" alt="Private photo">
+                  <div class="veil">
+                    <div>Private • Request access to view</div>
+                    <form action="{% url 'pages:request_private_access' profile.pk %}" method="post">
+                      {% csrf_token %}
+                      <button class="req" type="submit">Request Access</button>
+                    </form>
+                  </div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+          <p class="hint">Private photos remain blurred until the owner approves your request.</p>
+        {% endif %}
+      </section>
+    {% endif %}
+
+    <section>
+      <h2>About</h2>
+      {% if profile.extras %}
+        <p>{{ profile.bio|default_if_none:''|linebreaks }}</p>
+        <p><strong>Headline:</strong> {{ profile.extras.heading }}</p>
+        <p><strong>Status:</strong> {{ profile.extras.relationship_status }}</p>
+        <p><strong>Body type:</strong> {{ profile.extras.body_type }}</p>
+        <p><strong>Children:</strong> {{ profile.extras.children }}</p>
+        <p><strong>Smoker:</strong> {{ profile.extras.smoker }}</p>
+        <p><strong>Height:</strong> {{ profile.extras.height }}</p>
+        {% if profile.extras.seeking %}
+          <p><strong>Looking for:</strong> {{ profile.extras.seeking }}</p>
+        {% endif %}
+      {% else %}
+        <p>{{ profile.bio|default_if_none:''|linebreaks }}</p>
+      {% endif %}
+    </section>
+
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+      <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+      <div class="lb-controls">
+        <button class="lb-btn" id="lbPrev" aria-label="Previous">◀</button>
+        <button class="lb-btn" id="lbNext" aria-label="Next">▶</button>
+      </div>
+      <img id="lbImg" alt="">
+      <div class="caption" id="lbCaption"></div>
+    </div>
+  </main>
+
+  <div class="modal" id="searchModal" aria-hidden="true">
+    <div class="sheet">
+      <header>
+        <strong>Search Profiles</strong>
+        <button class="icon-btn" id="closeSearch" type="button" title="Close">
+          <span class="material-icons">close</span>
+        </button>
+      </header>
+      <main>
+        <form method="get" action="{% url 'pages:dashboard' %}">
+          <div class="row">
+            <div>
+              <label>Keyword</label>
+              <input name="q" value="{{ q|default_if_none:'' }}">
+            </div>
+            <div>
+              <label>Location</label>
+              <input name="location" value="{{ search_params.location|default_if_none:'' }}">
+            </div>
+          </div>
+          <div class="row" style="margin-top:12px">
+            <div>
+              <label>Age Min</label>
+              <input type="number" name="age_min" value="{{ search_params.age_min }}">
+            </div>
+            <div>
+              <label>Age Max</label>
+              <input type="number" name="age_max" value="{{ search_params.age_max }}">
+            </div>
+          </div>
+          {% if user.is_superuser %}
+          <div class="row" style="margin-top:12px">
+            <div>
+              <label>Gender (superuser only)</label>
+              <select name="gender">
+                <option value="">Any</option>
+                <option value="Female" {% if search_params.gender == 'Female' %}selected{% endif %}>Female</option>
+                <option value="Male" {% if search_params.gender == 'Male' %}selected{% endif %}>Male</option>
+                <option value="Other" {% if search_params.gender == 'Other' %}selected{% endif %}>Other</option>
+              </select>
+            </div>
+          </div>
+          {% endif %}
+          <div class="actions-row">
+            <a class="btn" href="{% url 'pages:dashboard' %}">Reset</a>
+            <button class="btn primary" type="submit">Search</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  {% include "pages/partials/logout_modal.html" %}
+
+  <script>
+    (function(){
+      const back = document.getElementById('gd-back');
+      try {
+        const key = 'gd:last-dashboard-url';
+        const ref = document.referrer || '';
+        if (ref.includes('/dashboard')) {
+          sessionStorage.setItem(key, ref);
+        }
+        const saved = sessionStorage.getItem(key);
+        if (saved && back) back.href = saved;
+      } catch (e) {}
+    })();
+
+    (function(){
+      const tiles = Array.from(document.querySelectorAll('.tile[data-src]'));
+      const lb = document.getElementById('lightbox');
+      const lbImg = document.getElementById('lbImg');
+      const lbCap = document.getElementById('lbCaption');
+      const lbPrev = document.getElementById('lbPrev');
+      const lbNext = document.getElementById('lbNext');
+      const lbClose = document.getElementById('lbClose');
+      if (!tiles.length || !lb || !lbImg) return;
+
+      let idx = 0;
+      const getSrcFromTile = t => t?.dataset?.src || t?.querySelector('img')?.getAttribute('src') || '';
+      const getCaptionFromTile = t => t?.querySelector('img')?.getAttribute('alt') || '';
+
+      function openLightbox(i){
+        if (!tiles.length) return;
+        idx = ((i % tiles.length) + tiles.length) % tiles.length;
+        const t = tiles[idx];
+        const src = getSrcFromTile(t);
+        if (!src) return;
+        lbImg.src = src;
+        lbCap.textContent = getCaptionFromTile(t);
+        lb.classList.add('open'); lb.setAttribute('aria-hidden','false');
+        document.documentElement.classList.add('gd-lock');
+        lbClose.focus();
+      }
+      function closeLightbox(){
+        lb.classList.remove('open'); lb.setAttribute('aria-hidden','true');
+        lbImg.src = ''; document.documentElement.classList.remove('gd-lock');
+      }
+      function next(){ openLightbox(idx + 1); }
+      function prev(){ openLightbox(idx - 1); }
+
+      tiles.forEach((t,i)=>{
+        t.addEventListener('click', ()=>openLightbox(i));
+        t.setAttribute('tabindex','0');
+        t.addEventListener('keydown', (e)=>{
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openLightbox(i); }
+        });
+      });
+      lbNext.addEventListener('click', next);
+      lbPrev.addEventListener('click', prev);
+      lbClose.addEventListener('click', closeLightbox);
+      lb.addEventListener('click', (e)=>{ if(e.target === lb) closeLightbox(); });
+      document.addEventListener('keydown', (e)=>{
+        if (!lb.classList.contains('open')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowRight') next();
+        if (e.key === 'ArrowLeft') prev();
+      });
+    })();
+
+    (function(){
+      const modal = document.getElementById('searchModal');
+      const openBtn = document.getElementById('openSearch');
+      const closeBtn = document.getElementById('closeSearch');
+      if (openBtn) openBtn.addEventListener('click', ()=>{ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); });
+      if (closeBtn) closeBtn.addEventListener('click', ()=>{ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); });
+      modal?.addEventListener('click', (e)=>{ if(e.target===modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }});
+      document.addEventListener('keydown', (e)=>{
+        if(e.key==='Escape' && modal.classList.contains('open')){
+          modal.classList.remove('open'); modal.setAttribute('aria-hidden','true');
+        }
+      });
+    })();
+  </script>
+</body>
+</html>
+

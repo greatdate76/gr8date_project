@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard • GR8DATE</title>
+  <link rel="icon" href="{% static 'images/gr8d-favicon.png' %}">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --fg:#0b0b0c; --muted:#6b7280; --accent:#ef3f71; --card:#ffffff; --bg:#f7f7f8; }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--bg);color:var(--fg);font:16px/1.45 "Inter",-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    a{color:inherit;text-decoration:none}
+    header{position:sticky;top:0;background:#fff;border-bottom:1px solid #ececec;z-index:10}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
+    .logo picture img{height:36px;display:block}
+    .bar{display:flex;gap:16px;align-items:center;justify-content:space-between}
+    .search{display:flex;gap:8px;align-items:center}
+    .search input{width:260px;max-width:60vw;border:1px solid #e5e7eb;border-radius:10px;padding:10px 12px}
+    .search button{border:0;background:var(--accent);color:#fff;padding:10px 14px;border-radius:10px;font-weight:600;cursor:pointer}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    @media (max-width:1024px){.grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:768px){.grid{grid-template-columns:repeat(2,1fr)} .search input{width:180px}}
+    @media (max-width:480px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid #eee;border-radius:16px;overflow:hidden;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+    .thumb{aspect-ratio:4/5;background:#f0f0f0;display:block;object-fit:cover;width:100%}
+    .meta{padding:10px 12px}
+    .name{font-weight:700}
+    .sub{font-size:.92rem;color:var(--muted);margin-top:2px}
+    .pill{display:inline-block;background:#fff;border:1px solid #eee;padding:2px 8px;border-radius:999px;font-size:.82rem;margin-top:6px}
+    .footer{display:flex;justify-content:center;gap:8px;margin:22px 0}
+    .pagebtn{border:1px solid #e5e7eb;background:#fff;border-radius:10px;padding:8px 12px;cursor:pointer}
+    .pagebtn[disabled]{opacity:.5;cursor:not-allowed}
+    .topnote{margin:12px 0 8px;color:var(--muted);font-size:.92rem}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap bar">
+      <a class="logo" href="{% url 'pages:index' %}">
+        <picture>
+          <source media="(max-width: 640px)" srcset="{% static 'images/gr8date-logo-mobile.svg' %}">
+          <img src="{% static 'images/gr8date-logo-desktop.svg' %}" alt="GR8DATE">
+        </picture>
+      </a>
+      <form class="search" action="{% url 'pages:dashboard' %}" method="get">
+        <input type="text" name="q" value="{{ request.GET.q }}" placeholder="Search name, city, tags…" />
+        <button type="submit">Search</button>
+      </form>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <p class="topnote">
+      Showing {{ page_obj.object_list|length }} of {{ page_obj.paginator.count }} profiles
+      {% if request.GET.q %} for “{{ request.GET.q }}”{% endif %}.
+    </p>
+
+    {% if page_obj.object_list %}
+      <section class="grid" aria-label="Profiles">
+        {% for p in page_obj.object_list %}
+          <article class="card">
+            <a href="{% url 'pages:profile_detail' p.id %}">
+              {% if p.primary_image_url %}
+                <img class="thumb" src="{{ p.primary_image_url }}" alt="{{ p.display_name|default:'Profile' }}">
+              {% else %}
+                <img class="thumb" src="{% static 'images/placeholder-4x5.png' %}" alt="No photo yet">
+              {% endif %}
+            </a>
+            <div class="meta">
+              <div class="name">
+                <a href="{% url 'pages:profile_detail' p.id %}">
+                  {{ p.display_name|default:"Member" }}
+                </a>
+              </div>
+              <div class="sub">
+                {% if p.age %}{{ p.age }} • {% endif %}
+                {% if p.location %}{{ p.location }}{% endif %}
+              </div>
+              {% if p.tagline %}
+                <div class="pill">{{ p.tagline }}</div>
+              {% endif %}
+            </div>
+          </article>
+        {% endfor %}
+      </section>
+    {% else %}
+      <p>No profiles yet.</p>
+    {% endif %}
+
+    {% if page_obj.paginator.num_pages > 1 %}
+      <nav class="footer" aria-label="Pagination">
+        {% if page_obj.has_previous %}
+          <a class="pagebtn" href="?page={{ page_obj.previous_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">‹ Prev</a>
+        {% else %}
+          <button class="pagebtn" disabled>‹ Prev</button>
+        {% endif %}
+
+        <span class="pagebtn" aria-current="page">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+
+        {% if page_obj.has_next %}
+          <a class="pagebtn" href="?page={{ page_obj.next_page_number }}{% if request.GET.q %}&q={{ request.GET.q }}{% endif %}">Next ›</a>
+        {% else %}
+          <button class="pagebtn" disabled>Next ›</button>
+        {% endif %}
+      </nav>
+    {% endif %}
+  </main>
+</body>
+</html>
+

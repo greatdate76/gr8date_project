@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>About Us – GR8Date</title>
+<style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    :root {
+      --brand-primary-red: #ff3366;
+      --border-light: #ddd;
+      --background-white: #fff;
+      --text-dark: #333;
+      --text-light: #777;
+      --shadow-light: rgba(0,0,0,0.1);
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* --- Header Styles (consistent with Landing/Login state) --- */
+    .app-header {
+      background-color: var(--background-white);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* --- New Logo Styles --- */
+    .logo-link {
+        padding-left: 1rem;
+    }
+    .logo-img {
+      height: 40px;
+      width: auto;
+      vertical-align: middle;
+      display: block;
+    }
+    .logo-mobile {
+      display: none;
+    }
+
+    @media (max-width: 600px) { /* Adjust breakpoint for logo switch */
+      .logo-desktop {
+        display: none;
+      }
+      .logo-mobile {
+        display: block;
+      }
+      .logo-img {
+        height: 35px;
+      }
+    }
+
+    .app-header .auth-buttons {
+      display: flex;
+      gap: 1rem;
+      padding-right: 1rem; /* Added for consistent spacing */
+    }
+    .app-header .auth-button {
+      background-color: var(--brand-primary-red);
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: background-color 0.3s ease;
+    }
+    .app-header .auth-button:hover {
+      background-color: #e62e5c;
+    }
+    .app-header .auth-button.secondary {
+      background-color: transparent;
+      color: var(--brand-primary-red);
+      border: 1px solid var(--brand-primary-red);
+    }
+    .app-header .auth-button.secondary:hover {
+      background-color: rgba(255, 51, 102, 0.1);
+    }
+
+    /* --- Mobile Header Specifics: Show auth buttons and adjust layout --- */
+    @media (max-width: 991px) {
+      .app-header {
+        justify-content: space-between; /* Keep space between logo and buttons */
+        padding: 0.5rem 0.5rem; /* Adjust padding for mobile */
+      }
+      .app-header .logo-link {
+        padding-left: 0; /* No extra padding if buttons are present */
+      }
+      .app-header .auth-buttons {
+        display: flex; /* Explicitly show on mobile */
+        gap: 0.5rem; /* Reduce gap for mobile */
+        padding-right: 0; /* Remove right padding as it's handled by overall padding */
+      }
+      .app-header .auth-button {
+        padding: 0.4rem 0.8rem; /* Smaller buttons for mobile */
+        font-size: 0.8rem; /* Smaller font for mobile */
+      }
+    }
+
+    /* --- Main Content Area for About Us --- */
+    .about-content {
+      background-color: var(--background-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-top: 1.5rem;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+    .about-content h1 {
+      color: var(--text-dark);
+      font-size: 2em;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    .about-content h2 {
+      color: var(--text-dark);
+      font-size: 1.5em;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .about-content p {
+      margin-bottom: 1em;
+    }
+    .about-content ul {
+      margin-bottom: 1em;
+      padding-left: 1.5rem;
+    }
+    .about-content li {
+      margin-bottom: 0.5em;
+    }
+    .about-highlight {
+        color: var(--brand-primary-red);
+        font-weight: bold;
+    }
+
+    /* --- Footer Styles (consistent with Dashboard) --- */
+    footer.site-footer {
+      background-color: #f2f2f2;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 2rem;
+    }
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .social-icons a {
+        color: #555;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+    .social-icons a:hover {
+        color: var(--brand-primary-red);
+    }
+    .social-icons .material-icons {
+        font-size: 1.5rem;
+    }
+  </style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:index' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button secondary" href="{% url 'pages:login' %}">Log In</a>
+<a class="auth-button" href="{% url 'pages:signup' %}">Join Free Now</a>
+</div>
+</header>
+<main class="container">
+<div class="about-content">
+<h1>About Us</h1>
+<p>Welcome to GR8Date, Australia's truly <span class="about-highlight">FREE</span> dating website. Our mission is simple: to connect genuine people looking for meaningful relationships without the burden of hidden costs or subscription fees. We believe that finding love shouldn't come with a price tag.</p>
+<h2>Our Story: Born Out of Frustration</h2>
+<p>GR8Date was born out of a common frustration shared by many online daters. Our creator, like countless others, experienced the disappointment of traditional dating sites that promise connection but deliver endless paywalls. It became clear that the industry was designed to profit from loneliness, rather than genuinely helping people find their match.</p>
+<p>Driven by this personal experience and a strong belief in accessible love, the idea for a truly <span class="about-highlight">FREE</span> platform emerged. Why should financial barriers stand in the way of genuine human connection? We decided to build a site that prioritizes people over profit, offering all essential features completely free of charge.</p>
+<h2>What Makes Us Different?</h2>
+<ul>
+<li><strong>100% Free, Always:</strong> This isn't a trial, and there are no premium features locked behind a paywall. Every tool you need to find your match is available to you for <span class="about-highlight">FREE</span>, forever. We're committed to this promise.</li>
+<li><strong>Genuine Connections:</strong> Our focus is on fostering real, authentic relationships. We encourage detailed profiles and provide tools that help you connect based on compatibility, not just superficial attraction.</li>
+<li><strong>Community &amp; Safety:</strong> We maintain a safe and respectful environment through active moderation and user reporting features. Your peace of mind is paramount.</li>
+<li><strong>Designed for Australians:</strong> Built with the unique needs and preferences of Australian singles in mind, GR8Date aims to be the leading free dating platform in the country.</li>
+</ul>
+<h2>Our Commitment</h2>
+<p>We are dedicated to continuously improving GR8Date, listening to our community, and ensuring that our platform remains the best place for Australians to find love, friendship, and lasting connections – all without ever asking for a cent. Join our growing community today and discover the difference a truly <span class="about-highlight">FREE</span> dating experience can make!</p>
+</div>
+</main>
+{% include "pages/partials/footer_auto.html" %}
+</body>
+</html>

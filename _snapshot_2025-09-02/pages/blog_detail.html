@@ -1,0 +1,28 @@
+{% extends "pages/base.html" %}
+{% load static %}
+
+{% block title %}{{ post.title }} · GR8Date{% endblock %}
+
+{% block content %}
+<style>
+  .blog-detail-wrap{max-width:800px;margin:40px auto;padding:0 16px}
+  .blog-detail-wrap h1{font-size:34px;margin-bottom:10px}
+  .blog-meta{color:#666;font-size:14px;margin-bottom:20px}
+  .blog-detail-wrap img{max-width:100%;border-radius:10px;margin:20px 0}
+  .blog-content{font-size:18px;line-height:1.6;color:#333}
+</style>
+
+<div class="blog-detail-wrap">
+  <h1>{{ post.title }}</h1>
+  <div class="blog-meta">{{ post.publish_at|date:"F j, Y" }} · {{ post.category|default:"Updates" }}</div>
+
+  {% if post.featured_image %}
+    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+  {% endif %}
+
+  <div class="blog-content">
+    {{ post.content|linebreaks }}
+  </div>
+</div>
+{% endblock %}
+

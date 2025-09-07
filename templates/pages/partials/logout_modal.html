@@ -1,0 +1,36 @@
+{% load static %}
+<div class="modal" id="logoutModal" aria-hidden="true">
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="logoutTitle">
+    <header>
+      <strong id="logoutTitle">Log out?</strong>
+      <button class="icon-btn" type="button" data-logout-cancel title="Close">
+        <span class="material-icons">close</span>
+      </button>
+    </header>
+    <main>
+      <p>You’re about to log out of GR8DATE.</p>
+      <form method="post" action="{% url 'pages:logout' %}">
+        {% csrf_token %}
+        <div class="actions">
+          <button class="btn" type="button" data-logout-cancel>Cancel</button>
+          <button class="btn primary" type="submit">Log out</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+<script>
+(function(){
+  const modal = document.getElementById('logoutModal');
+  if(!modal) return;
+  const openers = document.querySelectorAll('[data-logout-open]');
+  const closers = modal.querySelectorAll('[data-logout-cancel]');
+  function open(){ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); }
+  function close(){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }
+  openers.forEach(el => el.addEventListener('click', e => { e.preventDefault(); open(); }));
+  closers.forEach(el => el.addEventListener('click', e => { e.preventDefault(); close(); }));
+  modal.addEventListener('click', e => { if(e.target === modal) close(); });
+  document.addEventListener('keydown', e => { if(e.key==='Escape' && modal.classList.contains('open')) close(); });
+})();
+</script>
+

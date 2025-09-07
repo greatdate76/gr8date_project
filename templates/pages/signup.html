@@ -1,0 +1,404 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Sign Up – GR8Date</title>
+<style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    :root {
+      --brand-primary-red: #ff3366;
+      --border-light: #ddd;
+      --background-white: #fff;
+      --text-dark: #333;
+      --text-light: #777;
+      --shadow-light: rgba(0,0,0,0.1);
+      /* Social Login Colors */
+      --google-blue: #4285f4;
+      --facebook-blue: #1877f2;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* --- Header Styles --- */
+    .app-header {
+      background-color: var(--background-white);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* --- Logo Styles --- */
+    .logo-link {
+        padding-left: 1rem;
+    }
+    .logo-img {
+      height: 40px;
+      width: auto;
+      vertical-align: middle;
+      display: block;
+    }
+    .logo-mobile {
+      display: none;
+    }
+
+    @media (max-width: 600px) {
+      .logo-desktop {
+        display: none;
+      }
+      .logo-mobile {
+        display: block;
+      }
+       .logo-img {
+        height: 35px;
+      }
+    }
+
+    .app-header .auth-buttons {
+      display: flex;
+      gap: 1rem;
+      padding-right: 1rem;
+    }
+    .app-header .auth-button {
+      background-color: var(--brand-primary-red);
+      color: white;
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 20px;
+      text-decoration: none;
+      font-weight: bold;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      transition: background-color 0.3s ease;
+    }
+    .app-header .auth-button:hover {
+      background-color: #e62e5c;
+    }
+    .app-header .auth-button.secondary {
+      background-color: transparent;
+      color: var(--brand-primary-red);
+      border: 1px solid var(--brand-primary-red);
+    }
+    .app-header .auth-button.secondary:hover {
+      background-color: rgba(255, 51, 102, 0.1);
+    }
+
+    @media (max-width: 991px) {
+      .app-header {
+        justify-content: space-between;
+        padding: 0.5rem 0.5rem;
+      }
+      .app-header .logo-link {
+        padding-left: 0;
+      }
+      .app-header .auth-buttons {
+        display: flex;
+        gap: 0.5rem;
+        padding-right: 0;
+      }
+      .app-header .auth-button {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.8rem;
+      }
+    }
+
+    /* --- Form Styles --- */
+    .form-container {
+      background-color: var(--background-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 2rem;
+      margin-top: 1.5rem;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+    }
+    .form-container h1 {
+      color: var(--text-dark);
+      font-size: 2em;
+      margin-bottom: 1.5rem;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+      text-align: left;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-light);
+      margin-bottom: 0.5rem;
+    }
+    .form-group input[type="email"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 1rem;
+      box-sizing: border-box;
+      background-color: var(--background-white);
+    }
+    .form-submit-button {
+      background-color: var(--brand-primary-red);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 25px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      margin-top: 1rem;
+      transition: background-color 0.3s ease;
+      width: 100%;
+    }
+    .form-submit-button:hover {
+      background-color: #e62e5c;
+    }
+    .form-link-text {
+      margin-top: 1.5rem;
+      font-size: 0.9rem;
+      color: var(--text-light);
+    }
+    .form-link-text a {
+      color: var(--brand-primary-red);
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .form-link-text a:hover {
+      text-decoration: underline;
+    }
+    
+    /* --- New Agreement & reCAPTCHA Styles --- */
+    .form-agreement {
+      display: flex;
+      align-items: flex-start;
+      text-align: left;
+      margin-top: 1.5rem;
+      margin-bottom: 1rem;
+    }
+    .form-agreement input[type="checkbox"] {
+      margin-top: 4px;
+      margin-right: 10px;
+      flex-shrink: 0;
+    }
+    .form-agreement label {
+      font-size: 0.85rem;
+      line-height: 1.4;
+      color: var(--text-light);
+    }
+    .form-agreement a {
+      color: var(--brand-primary-red);
+      text-decoration: none;
+    }
+    .form-agreement a:hover {
+      text-decoration: underline;
+    }
+    .recaptcha-notice {
+      font-size: 0.75rem;
+      color: var(--text-light);
+      line-height: 1.5;
+      margin-top: 1.5rem;
+    }
+    .recaptcha-notice a {
+      color: var(--text-light);
+    }
+
+    /* Social login button styles */
+    .social-login-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      margin-top: 1rem;
+      margin-bottom: 2rem;
+    }
+    .social-login-button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      border-radius: 5px;
+      font-weight: bold;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      text-decoration: none;
+      transition: background-color 0.2s ease;
+      box-sizing: border-box; /* ADDED THIS LINE FOR ALIGNMENT */
+    }
+    .social-login-button.google {
+      background-color: var(--background-white);
+      color: var(--text-dark);
+      border: 1px solid var(--border-light);
+    }
+    .social-login-button.google:hover {
+      background-color: #f0f0f0;
+    }
+    .social-login-button.facebook {
+      background-color: var(--facebook-blue);
+      color: white;
+      border: 1px solid var(--facebook-blue);
+    }
+    .social-login-button.facebook:hover {
+      background-color: #166fe5;
+    }
+    .social-login-button .social-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: contain;
+    }
+
+    /* Separator styles */
+    .separator {
+      display: flex;
+      align-items: center;
+      text-align: center;
+      color: var(--text-light);
+      font-size: 0.9rem;
+      margin: 2rem 0;
+    }
+    .separator::before,
+    .separator::after {
+      content: '';
+      flex: 1;
+      border-bottom: 1px solid var(--border-light);
+    }
+    .separator:not(:empty)::before {
+      margin-right: .5em;
+    }
+    .separator:not(:empty)::after {
+      margin-left: .5em;
+    }
+
+    /* --- Footer Styles --- */
+    footer.site-footer {
+      background-color: #f2f2f2;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+      margin-top: 2rem;
+    }
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .social-icons a {
+        color: #555;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+    .social-icons a:hover {
+        color: var(--brand-primary-red);
+    }
+    .social-icons .material-icons {
+        font-size: 1.5rem;
+    }
+  </style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:index' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button secondary" href="{% url 'pages:login' %}">Log In</a>
+<a class="auth-button" href="{% url 'pages:signup' %}">Join Free Now</a>
+</div>
+</header>
+<main class="container">
+<div class="form-container">
+<h1>Join GR8Date</h1>
+<div class="social-login-buttons">
+<a class="social-login-button google" href="#">
+<img alt="Google icon" class="social-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/24px-Google_%22G%22_logo.svg.png"/>
+<span>Sign up with Google</span>
+</a>
+<a class="social-login-button facebook" href="#">
+<img alt="Facebook icon" class="social-icon" src="https://upload.wikimedia.org/wikipedia/commons/thumb/b/b8/2021_Facebook_icon.svg/24px-2021_Facebook_icon.svg.png"/>
+<span>Sign up with Facebook</span>
+</a>
+</div>
+<div class="separator">Or</div>
+<form id="signup-form">
+<div class="form-group">
+<label for="email">Email Address</label>
+<input id="email" placeholder="Enter your email" required="" type="email"/>
+</div>
+<div class="form-agreement">
+<input id="terms-agree" name="terms-agree" required="" type="checkbox"/>
+<label for="terms-agree">
+            I confirm I am 18 years or older and I agree to the <a href="{% url 'pages:terms' %}" target="_blank">Terms and Conditions</a> and <a href="{% url 'pages:privacy' %}" target="_blank">Privacy Policy</a>.
+          </label>
+</div>
+<button class="form-submit-button" type="submit">Sign Up</button>
+</form>
+<p class="recaptcha-notice">
+        This site is protected by reCAPTCHA and the Google
+        <a href="https://policies.google.com/privacy" target="_blank">Privacy Policy</a> and
+        <a href="https://policies.google.com/terms" target="_blank">Terms of Service</a> apply.
+      </p>
+<p class="form-link-text">Already a member? <a href="{% url 'pages:login' %}">Log In</a></p>
+</div>
+</main>
+<script>
+    document.getElementById('signup-form').addEventListener('submit', function(event) {
+      event.preventDefault(); // Prevent default form submission
+
+      const email = document.getElementById('email').value;
+      const termsCheckbox = document.getElementById('terms-agree');
+
+      // JavaScript validation for the checkbox
+      if (!termsCheckbox.checked) {
+        alert('You must confirm you are over 18 and agree to the terms to sign up.');
+        return; // Stop the function
+      }
+
+      // If validation passes:
+      alert('Sign up successful! Please check your email to continue.');
+      // In a real application, you would now send the email to your server.
+      // For this prototype, we'll redirect to a conceptual profile creation page.
+      window.location.href = 'create_profile.html';
+    });
+  </script>
+</body>
+</html>

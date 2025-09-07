@@ -1,0 +1,114 @@
+{% load static %}
+{% now 'U' as cachebust %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Preview Locked • GR8DATE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{% static 'css/base.css' %}?v={{ cachebust }}" rel="stylesheet">
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      background: #f3f4f6; 
+      color: #111;           
+      margin: 0;
+      padding: 40px 20px;
+      text-align: center;
+    }
+    .logo { margin-bottom: 60px; }
+    .logo img {
+      max-width: 200px;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+    }
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 16px;
+      padding: 24px;
+      max-width: 360px;
+      width: 92%;
+      text-align: center;
+      margin-top: auto;
+      margin-bottom: auto;
+    }
+    h1 { margin: 0 0 8px; font-size: 20px; }
+    p { margin: 0 0 14px; color: #c7d2fe; }
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+      color: #e5e7eb;
+      text-align: left;
+    }
+    input[type=password] {
+      width: 100%;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #0f172a;
+      color: #fff;
+    }
+    .row { display: flex; gap: 8px; margin-top: 12px; }
+    button {
+      flex: 1;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid #374151;
+      background: #2563eb;
+      color: #fff;
+      cursor: pointer;
+    }
+    .error {
+      background: #7f1d1d;
+      color: #fecaca;
+      border: 1px solid #991b1b;
+      border-radius: 10px;
+      padding: 8px 10px;
+      margin: 10px 0;
+    }
+    small { color: #9ca3af; }
+  </style>
+</head>
+<body>
+  <div class="logo">
+    <!-- Single image; JS decides desktop vs mobile -->
+    <img id="brandLogo"
+         src="{% static 'images/gr8date-logo-desktop.svg' %}?v={{ cachebust }}"
+         alt="GR8DATE logo">
+  </div>
+
+  <form class="card" method="post">
+    {% csrf_token %}
+    <h1>Preview Locked</h1>
+    <p>This site is in preview. Enter the access password to continue.</p>
+    {% if error %}<div class="error">{{ error }}</div>{% endif %}
+    <input type="hidden" name="next" value="{{ next|default:'/' }}">
+    <label for="pw">Password</label>
+    <input id="pw" name="password" type="password" autocomplete="current-password">
+    <div class="row">
+      <button type="submit">Unlock</button>
+    </div>
+    <p style="margin-top:12px;"><small>Static files and admin remain accessible.</small></p>
+  </form>
+
+  <script>
+    (function(){
+      var img = document.getElementById('brandLogo');
+      var mobile = "{% static 'images/gr8date-logo-mobile.svg' %}?v={{ cachebust }}";
+      var desktop = "{% static 'images/gr8date-logo-desktop.svg' %}?v={{ cachebust }}";
+      var mq = window.matchMedia('(max-width: 640px)');
+      function setLogo(){ img.src = mq.matches ? mobile : desktop; }
+      setLogo();
+      if (mq.addEventListener) { mq.addEventListener('change', setLogo); }
+      else if (mq.addListener) { mq.addListener(setLogo); }
+    })();
+  </script>
+</body>
+</html>
+

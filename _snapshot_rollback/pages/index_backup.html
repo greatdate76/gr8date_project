@@ -1,0 +1,872 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>GR8Date – Free Dating Site</title>
+<style>
+    body {
+      margin: 0; padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      color: #333;
+    }
+
+    :root {
+      --brand-primary-red: #ff3366;
+      --brand-primary-red-dark: #e6005c;
+      --btn-primary: var(--brand-primary-red);
+      --btn-primary-hover: var(--brand-primary-red-dark);
+      --text-dark: #333;
+      --text-light: #555;
+      --background-white: #fff;
+      --background-light-grey: #E0F7FA; /* Changed to a very light cyan/aqua */
+      --background-mid-grey: #FFF3E0; /* Changed to a soft pale orange/cream */
+      --border-light: #ddd;
+      --shadow-light: rgba(0,0,0,0.1);
+    }
+
+    .site-header {
+      background: var(--background-white);
+      border-bottom: 1px solid var(--border-light);
+      padding: 1rem 0;
+    }
+
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+    }
+
+    /* --- Logo Styles --- */
+    .logo-img {
+      height: 40px; /* Default height for the logo */
+      width: auto;
+      vertical-align: middle; /* Helps with alignment in the header */
+      display: block;
+    }
+
+    .logo-mobile {
+      display: none; /* Mobile logo is hidden by default */
+    }
+
+    .site-nav {
+      margin-left: auto; 
+      display: flex;
+      align-items: center;
+    }
+
+    .site-nav a {
+      margin-left: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background 0.3s;
+      text-decoration: none;
+      font-weight: 700;
+      white-space: nowrap; 
+    }
+
+    .site-nav a.btn-primary {
+      background: #ff3388;
+      color: #fff;
+    }
+    .site-nav a.btn-primary:hover {
+      background: var(--btn-primary-hover);
+    }
+
+    .hero {
+      background-color: var(--background-white);
+      padding: 4rem 2rem;
+      text-align: center;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .hero-content-flex {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .hero-text-column {
+        flex: 1;
+        text-align: center;
+    }
+
+    .hero-image-column {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+
+    .hero-image {
+        max-width: 90%;
+        height: auto;
+        border-radius: 10px;
+        box-shadow: 0 8px 20px rgba(0,0,0,0);
+    }
+
+    .hero h2 {
+      font-size: 2.5rem;
+      margin-bottom: 1rem;
+      color: #333;
+      overflow-wrap: break-word;
+    }
+
+    .hero-subrow {
+      text-align: center;
+    }
+
+    .hero-subheading {
+      font-size: 1rem;
+      font-weight: normal;
+      color: #555;
+      margin-bottom: 2rem;
+    }
+
+    .btn-cta {
+      background-color: var(--btn-primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 6px var(--shadow-light);
+      transition: background-color 0.3s ease;
+      display: inline-block;
+    }
+
+    .btn-cta:hover {
+      background-color: var(--btn-primary-hover);
+    }
+
+    section.content-section {
+      padding: 3rem 2rem;
+    }
+
+    .content-container {
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    
+    .bg-background-light {
+      background-color: var(--background-light-grey);
+    }
+    
+    .bg-background-mid {
+      background-color: var(--background-mid-grey);
+    }
+
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: var(--text-dark);
+    }
+
+    /* Adjusted .grid for the "Ready to find your GR8Date?" section */
+    .content-section.bg-background-light .grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 1.5rem;
+    }
+
+    .feature-item {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px var(--shadow-light);
+      text-align: center;
+      flex: 1 1 calc(25% - 1.5rem);
+      min-width: 200px;
+      box-sizing: border-box;
+    }
+    
+    /* Styling for the icon container and the images within it */
+    .feature-item .icon-container { /* Renamed from icon-placeholder for clarity */
+        width: 60px; /* Size of the container */
+        height: 60px;
+        /* background-color: var(--btn-primary); /* Removed if icons have their own background */
+        border-radius: 50%;
+        margin: 0 auto 1rem auto; /* Center and add space below */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden; /* Ensures image stays within bounds if slightly larger */
+    }
+
+    .feature-item .icon-container img {
+        max-width: 100%; /* Image takes full width of its container */
+        max-height: 100%; /* Image takes full height of its container */
+        display: block; /* Remove extra space below image */
+        object-fit: contain; /* Scales image down to fit, maintaining aspect ratio */
+    }
+
+    .feature-item h3 {
+      font-size: 1.15rem;
+      margin-bottom: 0.75rem;
+      color: #222;
+    }
+
+    .feature-item p {
+      color: #555;
+      font-size: 1rem;
+      line-height: 1.4;
+    }
+
+    .cta-button-container {
+      width: 100%; 
+      display: flex; 
+      justify-content: center; 
+      margin-top: 3rem;
+    }
+    
+    .cta-button {
+      display: inline-block;
+      background-color: var(--btn-primary);
+      color: white;
+      font-weight: 700;
+      padding: 0.75rem 2rem;
+      border-radius: 9999px;
+      font-size: 1.125rem;
+      box-shadow: 0 10px 15px var(--shadow-light);
+      transition: all 300ms ease-in-out;
+      transform-origin: center;
+      text-decoration: none;
+    }
+
+    .cta-button:hover {
+      background-color: var(--btn-primary-hover);
+      transform: scale(1.05);
+    }
+
+    .content-section.bg-background-mid .feature-item svg {
+       max-width: 40px;
+       height: auto;
+       display: block;
+       margin: 0 auto 1rem auto;
+     }
+
+    .intro-text {
+        font-size: 1.1rem;
+        text-align: center;
+        margin-bottom: 2.5rem;
+        line-height: 1.6;
+        color: var(--text-light);
+    }
+
+    /* Styles specific to the "Why Choose Us" section */
+    .why-choose-us-section {
+        background-color: var(--background-white);
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+    .why-choose-us-section .section-title {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+    .why-choose-us-section .intro-paragraph {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--text-light);
+        max-width: 800px;
+        margin: 0 auto 2rem auto;
+    }
+    .why-choose-us-section .tagline {
+        font-weight: bold;
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+        color: var(--text-dark);
+    }
+    .why-choose-us-section .sub-tagline {
+        font-style: italic;
+        font-size: 1rem;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+
+    /* Grid for the 3 icons/steps */
+    .why-choose-us-section .steps-grid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 2rem;
+        margin-bottom: 2.5rem;
+    }
+
+    .why-choose-us-section .step-item {
+        flex: 1 1 calc(33.33% - 2rem);
+        min-width: 250px;
+        box-sizing: border-box;
+        text-align: center;
+    }
+
+    /* New style for step-item icons (from why-choose-us-section) */
+    .why-choose-us-section .step-item .icon-container { /* Consistent class name */
+        width: 80px; /* Larger size */
+        height: 80px;
+        /* background-color: var(--btn-primary); /* Removed if icons have their own background */
+        border-radius: 50%;
+        margin: 0 auto 1rem auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .why-choose-us-section .step-item .icon-container img {
+        max-width: 100%;
+        max-height: 100%;
+        display: block;
+        object-fit: contain;
+    }
+
+
+    .why-choose-us-section .step-item h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.5rem;
+        color: var(--text-dark);
+    }
+    .why-choose-us-section .last-paragraph {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: var(--text-dark);
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    /* New section: Whats So Special */
+    .what-special-section {
+        background-color: var(--background-light-grey);
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+    .what-special-section .section-title {
+        font-size: 2rem;
+        margin-bottom: 1.5rem;
+        color: var(--text-dark);
+    }
+    .what-special-section .main-text {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: var(--text-light);
+        max-width: 900px;
+        margin: 0 auto 2.5rem auto;
+    }
+
+    /* Styles for the new "Your GR8Date is Waiting" section */
+    .perfect-match-cta-section {
+        background-color: var(--background-white);
+        padding: 3rem 2rem;
+        text-align: center;
+    }
+    .perfect-match-cta-section .title-text {
+        font-size: 2rem;
+        font-weight: bold;
+        color: var(--text-dark);
+        margin-bottom: 0.5rem;
+    }
+    .perfect-match-cta-section .sub-title-text {
+        font-size: 1.2rem;
+        color: var(--text-light);
+        margin-bottom: 2rem;
+    }
+    .perfect-match-cta-section .image-row {
+        display: flex; /* Use flexbox for side-by-side arrangement */
+        flex-direction: column; /* Default to column for mobile */
+        gap: 0; /* No gaps between images */
+        justify-content: center;
+        align-items: center;
+        margin-top: 2rem;
+        margin-bottom: 2.5rem;
+    }
+    .perfect-match-cta-section .image-container { /* New container for each image */
+        width: 100%; /* Default to full width for mobile */
+        max-width: 450px; /* Limit individual image width on larger screens */
+        height: 250px; /* Fixed height for consistent sizing */
+        overflow: hidden; /* Ensure image doesn't spill out */
+        box-sizing: border-box; /* Include padding/border in width calculation */
+    }
+    .perfect-match-cta-section .image-container img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Crop and cover the container */
+        display: block;
+    }
+
+
+    /* Moved image gallery section */
+    .image-gallery-section {
+      padding: 3rem 0;
+    }
+    .image-grid-no-gap {
+      display: grid;
+      grid-template-columns: 1fr;
+    }
+    
+    .image-grid-no-gap img {
+      width: 100%;
+      height: 400px;
+      display: block;
+      object-fit: cover;
+    }
+
+    .text-with-icon {
+      text-align: center;
+    }
+    .text-with-icon p {
+      max-width: 800px;
+      margin: 0 auto 1rem auto;
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-light);
+    }
+    .infinity-symbol {
+      margin: 1.5rem 0;
+    }
+
+    .full-width-image-section {
+      padding: 3rem 0;
+    }
+    .responsive-center-image {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+
+    .final-cta-section {
+      background-color: var(--background-mid-grey);
+    }
+    .final-cta-container {
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+    .final-cta-left {
+      text-align: center;
+    }
+    .final-cta-left h2 {
+      font-size: 1.8rem;
+      margin-bottom: 1rem;
+    }
+    .final-cta-left p {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      color: var(--text-light);
+      margin-bottom: 2rem;
+    }
+    .final-cta-right ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .final-cta-right li {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      text-align: left;
+    }
+    .final-cta-right .icon {
+      flex-shrink: 0;
+    }
+    .final-cta-right h3 {
+      margin: 0 0 0.25rem 0;
+      font-size: 1.1rem;
+    }
+    .final-cta-right p {
+      margin: 0;
+      color: var(--text-light);
+    }
+
+    footer.site-footer {
+      background-color: #f2f2f2;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .social-icons a {
+        color: #555;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+    .social-icons a:hover {
+        color: var(--brand-primary-red);
+    }
+    .social-icons .material-icons {
+        font-size: 1.5rem;
+    }
+
+    /* --- DESKTOP STYLES --- */
+    @media (min-width: 768px) {
+      .hero-content-flex {
+          flex-direction: row;
+          align-items: center;
+      }
+      .hero-text-column {
+          text-align: left;
+          padding-right: 50px;
+      }
+      .hero-subrow {
+        text-align: left;
+      }
+      .hero-image-column {
+          justify-content: flex-end;
+          padding-left: 50px;
+      }
+      .hero-image {
+          max-width: 100%;
+      }
+
+      .grid:not(.content-section.bg-background-light .grid) {
+        grid-template-columns: repeat(3, 1fr);
+      }
+      
+      .two-column-layout-container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: flex;
+        gap: 2rem;
+        padding: 0 2rem;
+      }
+      .two-column-layout-container > .content-section {
+        flex: 1;
+        padding: 2rem;
+        background-color: var(--background-light-grey);
+        border: 1px solid var(--border-light);
+        border-radius: 15px;
+        box-shadow: 0 4px 12px var(--shadow-light);
+      }
+      .two-column-layout-container .grid {
+        grid-template-columns: 1fr;
+      }
+
+      .why-choose-us-section .steps-grid {
+          flex-direction: row;
+      }
+      .why-choose-us-section .step-item {
+          flex: 1 1 calc(33.33% - 2rem);
+      }
+
+      /* Desktop for new "Your GR8Date is Waiting" image row */
+      .perfect-match-cta-section .image-row {
+          flex-direction: row; /* Arranges images side-by-side on desktop */
+      }
+      .perfect-match-cta-section .image-container {
+          flex: 1; /* Each image container takes equal space */
+          max-width: none; /* Override mobile max-width */
+      }
+
+
+      .image-grid-no-gap {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0;
+      }
+
+      .responsive-center-image {
+        width: 75%;
+        margin: 0 auto;
+      }
+
+      .final-cta-container {
+        flex-direction: row;
+      }
+      .final-cta-left, .final-cta-right {
+        flex: 1;
+        padding: 2rem;
+      }
+      .final-cta-left {
+        text-align: left;
+      }
+    }
+
+    /* --- MOBILE STYLES --- */
+    @media (max-width: 600px) {
+      .logo-desktop {
+          display: none; /* Hide the desktop logo on small screens */
+      }
+      .logo-mobile {
+          display: block; /* Show the mobile logo on small screens */
+      }
+      .logo-img {
+          height: 35px; /* Optional: Adjust size for mobile if needed */
+      }
+
+      .site-nav {
+        transform: translateX(-40px);
+      }
+
+      .site-nav a {
+        padding: 0.4rem 0.8rem;
+        margin-left: 0.5rem;
+        font-size: 0.9rem;
+      }
+
+      .hero h2 {
+        font-size: 2rem;
+      }
+      
+      .image-grid-no-gap img {
+        height: auto;
+      }
+
+      .content-section.bg-background-light .grid {
+          flex-direction: column;
+          align-items: center;
+          gap: 1.5rem;
+      }
+      @media (min-width: 480px) and (max-width: 767px) {
+        .content-section.bg-background-light .grid {
+            flex-direction: row;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .content-section.bg-background-light .feature-item {
+            flex: 1 1 calc(50% - 0.75rem);
+        }
+      }
+
+      .why-choose-us-section .steps-grid {
+          flex-direction: column;
+          align-items: center;
+      }
+      .why-choose-us-section .step-item {
+          flex: 1 1 100%;
+          max-width: 300px;
+      }
+
+      /* Mobile for "Your GR8Date is Waiting" image row */
+      .perfect-match-cta-section .image-row {
+          flex-direction: column; /* Images stack vertically on mobile */
+          gap: 0; /* Still no gaps */
+      }
+    }
+  </style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+</head>
+<body>
+<header class="site-header">
+<div class="container nav-container">
+<a href="{% url 'pages:home' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<nav class="site-nav">
+<a href="{% url 'pages:login' %}">Login</a>
+<a class="btn-primary" href="{% url 'pages:signup' %}">Join Free Now</a>
+</nav>
+</div>
+</header>
+<section class="hero">
+<div class="container hero-content-flex">
+<div class="hero-text-column">
+<h2>Australia's Only <br/>FREE Dating Website.</h2>
+<div class="hero-subrow">
+<p class="hero-subheading">Enjoy unrestricted access<br/>No Hidden Costs or Payments.</p>
+<a class="btn-cta" href="{% url 'pages:signup' %}">Join Free Now</a>
+</div>
+</div>
+<div class="hero-image-column">
+<img alt="Dating App on Phone" class="hero-image" src="{% static 'images/herogirl.jpg' %} "/>
+</div>
+</div>
+</section>
+<section class="content-section bg-background-light">
+<div class="content-container">
+<h2 class="section-title">Ready to find your GR8Date?</h2>
+<p class="intro-text">At GR8Date, we're dedicated to helping you connect with people who truly align with your values, interests, and goals. With our advanced matching algorithms, secure platform, and personalized approach, we make it easier than ever to meet someone who could be 'the one.' Join GR8Date today for free and start your journey toward meaningful, lasting connections.</p>
+<div class="grid">
+<div class="feature-item">
+<div class="icon-container">
+<img alt="Free Icon" src="{% static 'images/4-1free-icon.png' %}"/>
+</div>
+<h3>The only dating platform that is totally free.</h3>
+</div>
+<div class="feature-item">
+<div class="icon-container">
+<img alt="No Surprises Icon" src="{% static 'images/4-2nosuprises_icon.svg' %}"/>
+</div>
+<h3>Avoid wasting time. No surprises or disappointments.</h3>
+</div>
+<div class="feature-item">
+<div class="icon-container">
+<img alt="Female Icon" src="{% static 'images/4-3female_icon.svg' %}"/>
+</div>
+<h3>Engage with people that match your expectations.</h3>
+</div>
+<div class="feature-item">
+<div class="icon-container">
+<img alt="Arrow Icon" src="{% static 'images/4-4arrow_icon.svg' %}"/>
+</div>
+<h3>Browse profiles that clearly define expectations.</h3>
+</div>
+</div>
+</div>
+</section>
+<section class="content-section why-choose-us-section">
+<div class="content-container">
+<h2 class="section-title">WHY CHOOSE US</h2>
+<p class="intro-paragraph">Why pay to find love when you can find it here for free. At GR8Date, we believe meaningful relationships shouldn't come with a price tag. Our platform is 100 % free offering you full site access and personalised match making. Advanced search features allow you to clearly state what you are looking for in a safe, welcoming community- all without any hidden fees. Whether looking for something casual or your soul mate, GR8Date gives you all the tools to meet compatible singles in your area. Join today and start your journey towards finding love for free!</p>
+<div class="steps-grid">
+<div class="step-item">
+<div class="icon-container"> <img alt="Join Icon" src="{% static 'images/1-3joinicon.webp' %}"/>
+</div>
+<h3>JOIN</h3>
+</div>
+<div class="step-item">
+<div class="icon-container"> <img alt="Talk Icon" src="{% static 'images/2-3talkicon.webp' %}"/>
+</div>
+<h3>TALK</h3>
+</div>
+<div class="step-item">
+<div class="icon-container"> <img alt="Meet Icon" src="{% static 'images/3-3meeticon.webp' %}"/>
+</div>
+<h3>MEET</h3>
+</div>
+</div>
+<p class="last-paragraph">Your GR8Date is Waiting</p>
+<div class="cta-button-container">
+<a class="cta-button" href="{% url 'pages:signup' %}">Join now and meet them for free</a>
+</div>
+</div>
+</section>
+<section class="image-gallery-section">
+<div class="image-grid-no-gap">
+<img alt="man and woman smiling" src="{% static 'images/image1.jpg'  %}"/>
+<img alt="man and woman walking" src="{% static 'images/image2.jpg'  %}"/>
+<img alt="man and woman holding hands" src="{% static 'images/image3.jpg'  %}"/>
+</div>
+</section>
+<section class="content-section what-special-section">
+<div class="content-container">
+<h2 class="section-title">WHAT'S SO SPECIAL ABOUT GR8DATE?</h2>
+<p class="main-text">GR8Date allows you to date how you choose we set out to build a platform that covers the full spectrum of dating in today's world so you can tailor your profile and date in a way that suits you. What could be better than that? Well, we are 100% free. No hidden fees, no cards required. You can access all features such as HOT DATES and message people all within the safety of the platform.</p>
+</div>
+</section>
+<section class="content-section perfect-match-cta-section">
+<div class="content-container">
+<p class="title-text">Your GR8Date is Waiting</p>
+<p class="sub-title-text">Join now and meet them for free</p>
+<div class="image-row">
+<div class="image-container">
+<img alt="Description of first image" src="{% static 'images/image4.jpg'  %}"/>
+</div>
+<div class="image-container">
+<img alt="Description of second image" src="{% static 'images/image5.jpg'  %}"/>
+</div>
+</div>
+<div class="cta-button-container">
+<a class="btn-cta" href="{% url 'pages:signup' %}">Join Free Now</a>
+</div>
+</div>
+</section>
+<section class="full-width-image-section">
+<img alt="man and woman showing the ok sign with their hands" class="responsive-center-image" src="{% static 'images/image6.jpg'  %}"/>
+</section>
+<section class="content-section final-cta-section">
+<div class="container final-cta-container">
+<div class="final-cta-left">
+<h2>Join GR8Date Now</h2>
+<p>Your journey to finding a meaningful connection starts here. With thousands of verified members and a commitment to a safe, genuine community, you're one step away from meeting someone special. Sign up for free and discover your GR8Date today!</p>
+<a class="cta-button" href="{% url 'pages:signup' %}">Join Free Now</a>
+</div>
+<div class="final-cta-right">
+<ul>
+<li>
+<div class="icon">
+<svg fill="var(--brand-primary-red)" height="32" viewbox="0 0 16 16" width="32" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"></path>
+</svg>
+</div>
+<div>
+<h3>Completely Free</h3>
+<p>Enjoy all our features without any hidden costs or subscriptions.</p>
+</div>
+</li>
+<li>
+<div class="icon">
+<svg fill="var(--brand-primary-red)" height="32" viewbox="0 0 16 16" width="32" xmlns="http://www.w3.org/2000/svg">
+<path d="M10.067.87a2.89 2.89 0 0 0-4.134 0l-.622.638-.89-.011a2.89 2.89 0 0 0-2.924 2.924l.01.89-.636.622a2.89 2.89 0 0 0 0 4.134l.637.622-.011.89a2.89 2.89 0 0 0 2.924 2.924l.89-.01.622.636a2.89 2.89 0 0 0 4.134 0l.622-.637.89.011a2.89 2.89 0 0 0 2.924-2.924l-.01-.89.636-.622a2.89 2.89 0 0 0 0-4.134l-.637-.622.011-.89a2.89 2.89 0 0 0-2.924-2.924l-.89.01-.622-.636zm.287 5.984-3 3a.5.5 0 0 1-.708 0l-1.5-1.5a.5.5 0 1 1 .708-.708L7 8.793l2.646-2.647a.5.5 0 0 1 .708.708z"></path>
+</svg>
+</div>
+<div>
+<h3>Verified Profiles</h3>
+<p>We ensure a community of real, genuine people looking for connection.</p>
+</div>
+</li>
+<li>
+<div class="icon">
+<svg fill="var(--brand-primary-red)" height="32" viewbox="0 0 16 16" width="32" xmlns="http://www.w3.org/2000/svg">
+<path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"></path>
+</svg>
+</div>
+<div>
+<h3>Safe &amp; Secure</h3>
+<p>Your privacy and safety are our top priority with advanced moderation.</p>
+</div>
+</li>
+</ul>
+</div>
+</div>
+</section>
+<footer class="site-footer">
+<p>© 2025 GR8Date – All rights reserved.</p>
+<div class="footer-links">
+<a href="{% url 'pages:privacy' %}">Privacy</a>
+<a href="{% url 'pages:terms' %}">Terms</a>
+<a href="{% url 'pages:about' %}">About Us</a>
+<a href="{% url 'pages:blog_list' %}">Blog</a>
+<a href="{% url 'pages:faq' %}">FAQ</a>
+<a href="{% url 'pages:contact' %}">Contact</a>
+</div>
+<div class="social-icons">
+<a href="https://www.facebook.com/profile.php?id=61577945422359" title="Facebook"><span class="material-icons">facebook</span></a>
+<a href="https://www.instagram.com/gr8date_official/" title="Instagram"><span class="material-icons">camera_alt</span></a>
+<a href="#" title="X (Twitter)"><span class="material-icons">alternate_email</span></a>
+</div>
+</footer>
+</body>
+</html>

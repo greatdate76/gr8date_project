@@ -1,0 +1,274 @@
+from django.core.management.base import BaseCommand
+from django.db import transaction
+from django.conf import settings
+from pathlib import Path
+import csv
+
+from pages.models import Profile, ProfileImage
+
+
+# ---------------------------
+# Helpers
+# ---------------------------
+
+def clean_val(v):
+    if v is None:
+        return None
+    s = str(v).strip()
+    if s.lower() in {"", "none", "null", "nan"}:
+        return None
+    return s
+
+def clean_text_or_empty(v):
+    """Return a non-null string ('' for empty) for NOT NULL Char/TextFields."""
+    s = clean_val(v)
+    return s if s is not None else ""
+
+def to_int(v):
+    s = clean_val(v)
+    if s is None:
+        return None
+    try:
+        return int(float(s))
+    except Exception:
+        return None
+
+def split_paths(cell):
+    """CSV stores multi-images as ';' separated. Be tolerant of commas too."""
+    s = clean_val(cell)
+    if not s:
+        return []
+    return [part.strip() for part in s.replace(",", ";").split(";") if part.strip()]
+
+def rel_media(path_str):
+    """
+    'media/profiles/user_1602/x.jpg' or '/media/profiles/...'
+    -> 'profiles/user_1602/x.jpg' (relative to MEDIA_ROOT)
+    """
+    if not path_str:
+        return None
+    p = str(path_str).lstrip("/")
+    if p.startswith("media/"):
+        p = p[len("media/"):]
+    return p
+
+def file_exists_under_media(path_rel):
+    if not path_rel:
+        return False
+    return (Path(settings.MEDIA_ROOT) / path_rel).exists()
+
+
+# ---------------------------
+# Command
+# ---------------------------
+
+class Command(BaseCommand):
+    help = "Import master CSV (local image paths) into Profile + ProfileImage."
+
+    def add_arguments(self, parser):
+        parser.add_argument("csv_file", type=str, help="Path to CSV (e.g., gr8date_profiles_full_local.csv)")
+        parser.add_argument(
+            "--clear-images",
+            action="store_true",
+            help="Clear existing gallery images for a profile before re-adding for that row."
+        )
+        parser.add_argument(
+            "--no-images",
+            action="store_true",
+            help="Only update text fields; do not modify primary_image or gallery."
+        )
+        parser.add_argument(
+            "--no-text",
+            action="store_true",
+            help="Only update images; do not modify text fields."
+        )
+        parser.add_argument(
+            "--allow-empty-text",
+            action="store_true",
+            help="Allow blank text in CSV to overwrite existing DB text. Default: blanks are ignored."
+        )
+
+    @transaction.atomic
+    def handle(self, *args, **opts):
+        path = opts["csv_file"]
+        clear_images = opts["clear_images"]
+        no_images = opts["no_images"]
+        no_text = opts["no_text"]
+        allow_empty_text = opts["allow_empty_text"]
+
+        if no_images and no_text:
+            self.stderr.write(self.style.ERROR("Cannot use --no-images and --no-text together."))
+            return
+
+        created_profiles = 0
+        updated_profiles = 0
+        created_images = 0
+        skipped_files = 0
+
+        with open(path, newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            headers = [h or "" for h in (reader.fieldnames or [])]
+            hmap = {h.lower(): h for h in headers}  # lowercase → actual header
+
+            def present(colname):
+                return colname.lower() in hmap
+
+            def val(row, colname):
+                """Lookup by case-insensitive column name; returns raw value or None."""
+                key = hmap.get(colname.lower())
+                return row.get(key) if key else None
+
+            for row in reader:
+                # --- identify the user id ---
+                uid = to_int(val(row, "user_id") or val(row, "id") or val(row, "uid"))
+                if uid is None:
+                    continue
+
+                # --- ensure profile exists (create minimal if not present) ---
+                try:
+                    profile = Profile.objects.get(user_id=uid)
+                    made = False
+                except Profile.DoesNotExist:
+                    # Create with safe empties so NOT NULL columns (e.g., bio) are satisfied
+                    profile = Profile.objects.create(
+                        user_id=uid,
+                        display_name="",
+                        age=None,
+                        gender="",
+                        location="",
+                        bio="",
+                    )
+                    made = True
+                    created_profiles += 1
+
+                # --- update text fields (unless --no-text) ---
+                if not no_text:
+                    changes = {}
+
+                    # display_name: prefer username then display_name if present
+                    dn_source = None
+                    if present("username"):
+                        s = clean_val(val(row, "username"))
+                        if s is not None or allow_empty_text:
+                            dn_source = clean_text_or_empty(val(row, "username"))
+                    if dn_source is None and present("display_name"):
+                        s = clean_val(val(row, "display_name"))
+                        if s is not None or allow_empty_text:
+                            dn_source = clean_text_or_empty(val(row, "display_name"))
+                    if dn_source is not None and profile.display_name != dn_source:
+                        changes["display_name"] = dn_source
+
+                    # age
+                    if present("age"):
+                        age_v = to_int(val(row, "age"))
+                        if age_v is not None and profile.age != age_v:
+                            changes["age"] = age_v
+                        # If CSV has blank age, we ignore unless explicitly desired; keep existing.
+
+                    # gender
+                    if present("gender"):
+                        g = clean_val(val(row, "gender"))
+                        if g is not None or allow_empty_text:
+                            g2 = clean_text_or_empty(val(row, "gender"))
+                            if profile.gender != g2:
+                                changes["gender"] = g2
+
+                    # location
+                    if present("location"):
+                        loc = clean_val(val(row, "location"))
+                        if loc is not None or allow_empty_text:
+                            loc2 = clean_text_or_empty(val(row, "location"))
+                            if profile.location != loc2:
+                                changes["location"] = loc2
+
+                    # bio / description (prefer description)
+                    bio_source = None
+                    if present("description"):
+                        s = clean_val(val(row, "description"))
+                        if s is not None or allow_empty_text:
+                            bio_source = clean_text_or_empty(val(row, "description"))
+                    if bio_source is None and present("bio"):
+                        s = clean_val(val(row, "bio"))
+                        if s is not None or allow_empty_text:
+                            bio_source = clean_text_or_empty(val(row, "bio"))
+                    if bio_source is not None and profile.bio != bio_source:
+                        changes["bio"] = bio_source
+
+                    if changes:
+                        for k, v in changes.items():
+                            setattr(profile, k, v)
+                        profile.save(update_fields=list(changes.keys()))
+                        if not made:
+                            updated_profiles += 1
+
+                # --- images (unless --no-images) ---
+                if not no_images:
+                    if clear_images:
+                        ProfileImage.objects.filter(profile=profile).delete()
+
+                    # primary (ImageField + PUBLIC(0) gallery item)
+                    primary_rel = rel_media(clean_val(val(row, "profile_image")))
+                    if primary_rel and file_exists_under_media(primary_rel):
+                        if not profile.primary_image or profile.primary_image.name != primary_rel:
+                            profile.primary_image.name = primary_rel
+                            profile.save(update_fields=["primary_image"])
+                        if not ProfileImage.objects.filter(
+                            profile=profile, kind=ProfileImage.PUBLIC, position=0, image=primary_rel
+                        ).exists():
+                            ProfileImage.objects.create(
+                                profile=profile,
+                                kind=ProfileImage.PUBLIC,
+                                position=0,
+                                image=primary_rel,
+                                source_url="",
+                            )
+                            created_images += 1
+
+                    # additional images
+                    pos = 1
+                    for pth in split_paths(val(row, "additional_images")):
+                        rel = rel_media(pth)
+                        if not rel or not file_exists_under_media(rel):
+                            skipped_files += 1
+                            continue
+                        if not ProfileImage.objects.filter(profile=profile, kind=ProfileImage.ADDITIONAL, image=rel).exists():
+                            ProfileImage.objects.create(
+                                profile=profile,
+                                kind=ProfileImage.ADDITIONAL,
+                                position=pos,
+                                image=rel,
+                                source_url="",
+                            )
+                            created_images += 1
+                        pos += 1
+
+                    # private images
+                    pos = 1
+                    for pth in split_paths(val(row, "private_images")):
+                        rel = rel_media(pth)
+                        if not rel or not file_exists_under_media(rel):
+                            skipped_files += 1
+                            continue
+                        if not ProfileImage.objects.filter(profile=profile, kind=ProfileImage.PRIVATE, image=rel).exists():
+                            ProfileImage.objects.create(
+                                profile=profile,
+                                kind=ProfileImage.PRIVATE,
+                                position=pos,
+                                image=rel,
+                                source_url="",
+                            )
+                            created_images += 1
+                        pos += 1
+
+                # count as updated if we didn't create and we touched nothing above
+                if not made and no_text and no_images:
+                    # (this branch won't happen because we forbid both flags together)
+                    pass
+                elif not made and (no_text or no_images):
+                    updated_profiles += 1
+
+        self.stdout.write(self.style.SUCCESS(
+            f"Profiles created: {created_profiles}, updated: {updated_profiles}; "
+            f"images created: {created_images}; skipped missing files: {skipped_files}"
+        ))
+

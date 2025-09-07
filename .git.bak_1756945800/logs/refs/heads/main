@@ -1,0 +1,14 @@
+0000000000000000000000000000000000000000 3617c3b6163d97578697fd12aca8e5ee4b6c6678 cs <carltimsng@gmail.com> 1756936352 +1000	commit (initial): Initial commit with Railway-ready settings and Procfile
+3617c3b6163d97578697fd12aca8e5ee4b6c6678 86e29074418a875140b0cf09408a5b3535d1cd5e cs <carltimsng@gmail.com> 1756936638 +1000	commit: Enable email-or-username authentication backend
+86e29074418a875140b0cf09408a5b3535d1cd5e e7e181e1bcfb3225dc14fec8b8bab50ee6b207f6 cs <carltimsng@gmail.com> 1756937501 +1000	commit: Add preview lock (stacked logo) and wiring
+e7e181e1bcfb3225dc14fec8b8bab50ee6b207f6 54f97478bfcdd53f28fe0b5c8c910ee22367e874 cs <carltimsng@gmail.com> 1756939321 +1000	commit: Add /healthz endpoint for Railway health checks
+54f97478bfcdd53f28fe0b5c8c910ee22367e874 738527640dbb267d1f96208b406986bba50e8616 cs <carltimsng@gmail.com> 1756942078 +1000	commit: Auto-provision multiple superusers via ensure_superuser in release step
+738527640dbb267d1f96208b406986bba50e8616 c411d6c2b3f2acec4ce90da234119f65d5abc0f5 cs <carltimsng@gmail.com> 1756943146 +1000	commit: Add initial data fixture for production
+c411d6c2b3f2acec4ce90da234119f65d5abc0f5 7670807698112d1c289d435dd709806f23e16af8 cs <carltimsng@gmail.com> 1756943407 +1000	commit: Seed media + one-time data/media load in release step
+7670807698112d1c289d435dd709806f23e16af8 3b4b82ada86610c1c080ff5cce4533afe10c69d8 cs <carltimsng@gmail.com> 1756944414 +1000	commit: Deploy: fixtures + seed_media + release step
+3b4b82ada86610c1c080ff5cce4533afe10c69d8 3b4b82ada86610c1c080ff5cce4533afe10c69d8 cs <carltimsng@gmail.com> 1756944414 +1000	Branch: renamed refs/heads/master to refs/heads/main
+3b4b82ada86610c1c080ff5cce4533afe10c69d8 3b4b82ada86610c1c080ff5cce4533afe10c69d8 cs <carltimsng@gmail.com> 1756944569 +1000	Branch: renamed refs/heads/main to refs/heads/main
+3b4b82ada86610c1c080ff5cce4533afe10c69d8 cdd2065ebd53dee89c504dae254e679e30f06cd7 cs <carltimsng@gmail.com> 1756945748 +1000	commit: Add .gitignore (exclude venv, media, archives)
+cdd2065ebd53dee89c504dae254e679e30f06cd7 46458aa118f54c1133e1ba4a3d076436e258beea cs <carltimsng@gmail.com> 1756945757 +1000	commit: Compress fixture for deploy (.json.gz)
+46458aa118f54c1133e1ba4a3d076436e258beea 817185f7976477e0085f92fc4cfcfaec78df9212 cs <carltimsng@gmail.com> 1756945766 +1000	commit: Use gzipped fixture in release step
+817185f7976477e0085f92fc4cfcfaec78df9212 ad1bf83fbc730511c50d857eea2564989eb811ba cs <carltimsng@gmail.com> 1756945790 +1000	commit: Use gzipped fixture in release step

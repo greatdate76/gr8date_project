@@ -1,0 +1,324 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>FAQ – GR8Date</title>
+<style>
+    body {
+      margin: 0; padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #fff;
+      color: #333;
+    }
+    :root {
+      --brand-primary-red: #ff3366;
+      --brand-primary-red-dark: #e6005c;
+      --btn-primary: var(--brand-primary-red);
+      --btn-primary-hover: var(--brand-primary-red-dark);
+      --text-dark: #333;
+      --text-light: #555;
+      --background-white: #fff;
+      --background-light-grey: #E0F7FA;
+      --background-mid-grey: #FFF3E0;
+      --border-light: #ddd;
+      --shadow-light: rgba(0,0,0,0.1);
+    }
+    .site-header {
+      background: var(--background-white);
+      border-bottom: 1px solid var(--border-light);
+      padding: 1rem 0;
+    }
+    .nav-container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1rem;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* --- New Logo Styles --- */
+    .logo-img {
+      height: 40px;
+      width: auto;
+      vertical-align: middle;
+      display: block;
+    }
+    .logo-mobile {
+      display: none;
+    }
+
+    .site-nav {
+      margin-left: auto; 
+      display: flex;
+      align-items: center;
+    }
+    .site-nav a {
+      margin-left: 1rem;
+      padding: 0.5rem 1rem;
+      border-radius: 4px;
+      transition: background 0.3s;
+      text-decoration: none;
+      font-weight: 700;
+      white-space: nowrap; 
+    }
+    .site-nav a.btn-primary {
+      background: #ff3388;
+      color: #fff;
+    }
+    .site-nav a.btn-primary:hover {
+      background: var(--btn-primary-hover);
+    }
+    .content-section {
+      padding: 3rem 2rem;
+    }
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .section-title {
+      font-size: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      color: var(--text-dark);
+    }
+    .page-content {
+      line-height: 1.6;
+      color: var(--text-light);
+    }
+    .page-content h2 {
+      color: var(--text-dark);
+      font-size: 1.5rem;
+      margin-top: 2rem;
+    }
+    .page-content p {
+      margin-bottom: 1rem;
+    }
+    .page-content ul {
+      margin-bottom: 1rem;
+      padding-left: 20px;
+    }
+    .page-content li {
+      margin-bottom: 0.5rem;
+    }
+    .contact-form {
+      max-width: 600px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+    }
+    .form-group label {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
+    }
+    .form-group input, .form-group textarea {
+      padding: 0.75rem;
+      border: 1px solid var(--border-light);
+      border-radius: 5px;
+      font-size: 1rem;
+    }
+    .form-group textarea {
+      min-height: 150px;
+    }
+    .btn-submit {
+      background-color: var(--btn-primary);
+      color: white;
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: 5px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 4px 6px var(--shadow-light);
+      transition: background-color 0.3s ease;
+      display: inline-block;
+      align-self: flex-start;
+    }
+    .btn-submit:hover {
+      background-color: var(--btn-primary-hover);
+    }
+    .faq-item {
+      background: var(--background-light-grey);
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      padding: 1.5rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    .faq-item:hover {
+      box-shadow: 0 4px 12px var(--shadow-light);
+    }
+    .faq-question {
+      font-weight: bold;
+      font-size: 1.2rem;
+      color: var(--text-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .faq-answer {
+      font-size: 1rem;
+      color: var(--text-light);
+      margin-top: 1rem;
+      display: none;
+    }
+    .faq-item.active .faq-answer {
+      display: block;
+    }
+    footer.site-footer {
+      background-color: #f2f2f2;
+      padding: 2rem 1rem;
+      text-align: center;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .footer-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1rem;
+    }
+    .footer-links a {
+      color: #333;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .footer-links a:hover {
+      text-decoration: underline;
+    }
+    .social-icons {
+        display: flex;
+        justify-content: center;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .social-icons a {
+        color: #555;
+        transition: color 0.3s ease;
+        text-decoration: none;
+    }
+    .social-icons a:hover {
+        color: var(--brand-primary-red);
+    }
+    .social-icons .material-icons {
+        font-size: 1.5rem;
+    }
+    @media (max-width: 600px) {
+      .logo-desktop { display: none; }
+      .logo-mobile { display: block; }
+      .logo-img { height: 35px; }
+      .site-nav { transform: translateX(-40px); }
+      .site-nav a { padding: 0.4rem 0.8rem; margin-left: 0.5rem; font-size: 0.9rem; }
+    }
+  </style>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+</head>
+<body>
+<header class="site-header">
+<div class="container nav-container">
+<a class="logo-link" href="{% url 'pages:home' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<nav class="site-nav">
+<a href="{% url 'pages:login' %}">Login</a>
+<a class="btn-primary" href="{% url 'pages:signup' %}">Join Free Now</a>
+</nav>
+</div>
+</header>
+<main>
+<section class="content-section">
+<div class="container">
+<h1 class="section-title">Frequently Asked Questions</h1>
+<div class="faq-container">
+<div class="faq-item">
+<div class="faq-question">
+<span>Why is GR8Date completely free?</span>
+<span>+</span>
+</div>
+<div class="faq-answer">
+<p>We believe that finding a genuine connection should be accessible to everyone, without a financial barrier. Our core mission is to bring people together, not to profit from your search for love. All of our essential features, including messaging and profile browsing, are and will remain 100% free.</p>
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
+<span>What makes GR8Date different from other dating sites?</span>
+<span>+</span>
+</div>
+<div class="faq-answer">
+<p>We're built on the principle of transparency and authenticity. Our platform is completely free with no hidden fees or paywalls. We also focus on creating a community for mature adults who are looking for genuine, respectful connections, providing a safe space to find your perfect match.</p>
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
+<span>How do you ensure my safety and privacy?</span>
+<span>+</span>
+</div>
+<div class="faq-answer">
+<p>Your safety is our top priority. We have a zero-tolerance policy for harassment and inappropriate behavior. Our moderation team actively reviews profiles and we provide easy-to-use reporting tools for any issues. We also protect your data and privacy according to our strict Privacy Policy.</p>
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
+<span>Who is on GR8Date?</span>
+<span>+</span>
+</div>
+<div class="faq-answer">
+<p>Our members are diverse and come from all walks of life, but they are united by a common goal: finding a genuine, mature connection. You'll find people looking for everything from casual friendships to long-term relationships, all within a safe and respectful community.</p>
+</div>
+</div>
+<div class="faq-item">
+<div class="faq-question">
+<span>How do I get started?</span>
+<span>+</span>
+</div>
+<div class="faq-answer">
+<p>It's simple! Create your free profile in minutes. Tell us about yourself, upload a few photos, and start connecting with others who share your interests and values. There are no fees to join or to use any of our features.</p>
+</div>
+</div>
+</div>
+</div>
+</section>
+</main>
+<footer class="site-footer">
+<p>© 2025 GR8Date – All rights reserved.</p>
+<div class="footer-links">
+<a href="{% url 'pages:privacy' %}">Privacy</a>
+<a href="{% url 'pages:terms' %}">Terms</a>
+<a href="{% url 'pages:about' %}">About Us</a>
+<a href="{% url 'pages:faq' %}">FAQ</a>
+<a href="{% url 'pages:contact' %}">Contact</a>
+</div>
+<div class="social-icons">
+<a href="https://www.facebook.com/profile.php?id=61577945422359" title="Facebook"><span class="material-icons">facebook</span></a>
+<a href="https://www.instagram.com/gr8date_official/" title="Instagram"><span class="material-icons">camera_alt</span></a>
+<a href="#" title="X (Twitter)"><span class="material-icons">alternate_email</span></a>
+</div>
+</footer>
+<script>
+    document.querySelectorAll('.faq-item').forEach(item => {
+      item.addEventListener('click', () => {
+        item.classList.toggle('active');
+        const answer = item.querySelector('.faq-answer');
+        const icon = item.querySelector('.faq-question span:last-child');
+        if (item.classList.contains('active')) {
+          answer.style.display = 'block';
+          icon.textContent = '-';
+        } else {
+          answer.style.display = 'none';
+          icon.textContent = '+';
+        }
+      });
+    });
+  </script>
+</body>
+</html>

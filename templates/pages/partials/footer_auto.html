@@ -1,0 +1,10 @@
+{% comment %}
+Only show the footer on public pages.
+Relies on `request` being in context (you have this enabled in settings). 
+{% endcomment %}
+{% with n=request.resolver_match.url_name %}
+  {% if n == 'index' or n == 'about' or n == 'privacy' or n == 'terms' or n == 'faq' or n == 'contact' %}
+    {% include "pages/partials/footer.html" %}
+  {% endif %}
+{% endwith %}
+

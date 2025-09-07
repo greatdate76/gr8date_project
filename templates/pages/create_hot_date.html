@@ -1,0 +1,451 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Post a Hot Date – GR8Date</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        :root {
+            --brand-primary-red: #ff3366;
+            --border-light: #ddd;
+            --background-white: #fff;
+            --text-dark: #333;
+            --text-light: #777;
+            /* New Button Colors for modals */
+            --button-accept: #4CAF50; /* Green */
+            --button-deny: #f44336; /* Red */
+            --button-decline: #f44336; /* Red */
+            --button-text-light: #fff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0; /* Adjusted for full-width header */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: var(--text-dark);
+        }
+        
+        /* --- Header Styles --- */
+        .app-header {
+          background-color: var(--background-white);
+          border-bottom: 1px solid var(--border-light);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* --- New Logo Styles --- */
+        .logo-img {
+          height: 40px;
+          width: auto;
+          vertical-align: middle;
+          display: block;
+        }
+        .logo-mobile {
+          display: none;
+        }
+        
+        @media (max-width: 600px) {
+          .logo-desktop {
+            display: none;
+          }
+          .logo-mobile {
+            display: block;
+          }
+          .logo-img {
+            height: 35px;
+          }
+        }
+
+        .app-header .auth-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .app-header .auth-button {
+          background-color: var(--brand-primary-red);
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          transition: background-color 0.3s ease;
+        }
+        .app-header .auth-button:hover {
+          background-color: #e62e5c;
+        }
+        @media (max-width: 991px) {
+            .app-header {
+                padding: 0.5rem 0.5rem;
+            }
+            .app-header .auth-buttons {
+                gap: 0.5rem;
+            }
+            .app-header .auth-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        .container {
+            max-width: 700px; /* Slightly wider for forms */
+            margin: 20px auto;
+            background-color: var(--background-white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center; /* Center the form elements */
+        }
+
+        h1 {
+            color: var(--brand-primary-red);
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+
+        p.intro {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .form-section {
+            background-color: #f9f9f9;
+            border: 1px solid var(--border-light);
+            border-radius: 8px;
+            padding: 25px 30px;
+            margin-bottom: 25px;
+            text-align: left; /* Align form elements to left within section */
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .form-group select,
+        .form-group input[type="date"],
+        .form-group input[type="time"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box; /* Include padding in width */
+            background-color: var(--background-white);
+            color: var(--text-dark);
+        }
+
+        .form-group input[type="date"]::-webkit-inner-spin-button,
+        .form-group input[type="date"]::-webkit-calendar-picker-indicator,
+        .form-group input[type="time"]::-webkit-inner-spin-button,
+        .form-group input[type="time"]::-webkit-calendar-picker-indicator {
+            opacity: 1; /* Ensure pickers are visible */
+            cursor: pointer;
+        }
+
+        .form-group .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .form-group .checkbox-group label {
+            display: flex;
+            align-items: center;
+            font-weight: normal;
+            cursor: pointer;
+            margin-bottom: 0; /* Override default label margin */
+        }
+
+        .form-group .checkbox-group input[type="checkbox"] {
+            margin-right: 5px;
+            width: auto; /* Override 100% width for checkboxes */
+        }
+
+        .moderation-note { /* This class is no longer used but kept for completeness if needed elsewhere */
+            font-size: 0.85rem;
+            color: #d9534f;
+            margin-top: -10px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .generated-title {
+            background-color: #e0f7fa; /* Light blue background */
+            border-left: 5px solid #00acc1; /* Cyan accent */
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 5px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #007bff;
+            text-align: center;
+        }
+
+        .submit-button {
+            background-color: var(--brand-primary-red);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: auto; /* Don't make it full width by default */
+            margin-top: 20px;
+        }
+        .submit-button:hover {
+            background-color: #e62e5c;
+        }
+
+        /* Responsive Adjustment for Buttons on Small Screens */
+        @media (max-width: 768px) { /* Adjust breakpoint as needed */
+            .submit-button {
+                width: 100%; /* Make submit button full width on smaller screens */
+            }
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+            color: var(--brand-primary-red);
+            text-decoration: none;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:index' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button" href="{% url 'pages:dashboard' %}">Dashboard</a>
+</div>
+</header>
+<div class="container">
+<h1>Plan Your Perfect Hot Date</h1>
+<p class="intro">Fill out the details below using our easy selections. Once posted, members can request to join, and you'll choose your ideal match!</p>
+<form id="hotDateForm">
+<div class="form-section">
+<h2>Event Basics</h2>
+<div class="form-group">
+<label for="event_date">Date:</label>
+<input id="event_date" name="event_date" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="event_time">Time:</label>
+<input id="event_time" name="event_time" required="" type="time"/>
+</div>
+<div class="form-group">
+<label for="event_type">Activity Type:</label>
+<select id="event_type" name="event_type" required="">
+<option value="">-- Select an Activity --</option>
+<option value="To Be My Plus One">To Be My Plus One</option>
+<option value="Social Event">Social Event</option>
+<option value="Corporate Event">Corporate Event</option>
+<option value="Wedding">Wedding</option>
+<option value="BBQ">BBQ</option>
+<option value="Theatre/Cinema">Theatre/Cinema</option>
+<option value="Dinner">Dinner</option>
+<option value="Boat Trip">Boat Trip</option>
+<option value="Festival/Band">Festival/Band</option>
+<option value="Beach Day">Beach Day</option>
+<option value="Picnic">Picnic</option>
+<option value="Coffee &amp; Chat">Coffee &amp; Chat</option>
+<option value="Drinks (Casual)">Drinks (Casual)</option>
+<option value="Museum/Art Gallery Visit">Museum/Art Gallery Visit</option>
+<option value="Outdoor Activity">Outdoor Activity (General)</option>
+<option value="Sports Event">Sports Event (Watching)</option>
+<option value="Cooking Class">Cooking Class</option>
+<option value="Board Games">Board Games</option>
+<option value="Day Trip">Day Trip</option>
+</select>
+</div>
+<div class="form-group">
+<label for="location_city">City/Area:</label>
+<select id="location_city" name="location_city" required="">
+<option value="">-- Select a City --</option>
+<option value="Sydney">Sydney, NSW</option>
+<option value="Melbourne">Melbourne, VIC</option>
+<option value="Brisbane">Brisbane, QLD</option>
+<option value="Perth">Perth, WA</option>
+<option value="Adelaide">Adelaide, SA</option>
+<option value="Canberra">Canberra, ACT</option>
+<option value="Hobart">Hobart, TAS</option>
+<option value="Darwin">Darwin, NT</option>
+<option value="Gold Coast">Gold Coast, QLD</option>
+<option value="Sunshine Coast">Sunshine Coast, QLD</option>
+<option value="Newcastle">Newcastle, NSW</option>
+<option value="Geelong">Geelong, VIC</option>
+</select>
+</div>
+<div class="form-group">
+<label for="venue_type">Specific Venue Type/Preference (Optional):</label>
+<select id="venue_type" name="venue_type">
+<option value="">-- Any / Not Specified --</option>
+<option value="Cafe">Cafe</option>
+<option value="Bar/Pub">Bar/Pub</option>
+<option value="Restaurant (Casual)">Restaurant (Casual)</option>
+<option value="Restaurant (Fine Dining)">Restaurant (Fine Dining)</option>
+<option value="Cinema">Cinema</option>
+<option value="Park/Nature Trail">Park/Nature Trail</option>
+<option value="Museum/Gallery">Museum/Gallery</option>
+<option value="Live Music Venue">Live Music Venue</option>
+<option value="Sports Stadium">Sports Stadium</option>
+<option value="Cooking School">Cooking School</option>
+<option value="Board Game Cafe">Board Game Cafe</option>
+</select>
+</div>
+</div>
+<div class="form-section">
+<h2>Participation &amp; Vibe</h2>
+<div class="form-group">
+<label for="num_participants">Desired Number of Participants (Including yourself):</label>
+<select id="num_participants" name="num_participants" required="">
+<option value="">-- Select Type --</option>
+<option value="2">Just Us (You + 1)</option>
+<option value="3-5">Small Group (3-5 people)</option>
+<option value="6+">Larger Group (6+ people)</option>
+</select>
+</div>
+<div class="form-group">
+<label>Event Vibe/Theme (Select all that apply):</label>
+<div class="checkbox-group">
+<label><input name="vibe" type="checkbox" value="Relaxed"/> Relaxed</label>
+<label><input name="vibe" type="checkbox" value="Adventurous"/> Adventurous</label>
+<label><input name="vibe" type="checkbox" value="Sophisticated"/> Sophisticated</label>
+<label><input name="vibe" type="checkbox" value="Casual"/> Casual</label>
+<label><input name="vibe" type="checkbox" value="Fun &amp; Lively"/> Fun &amp; Lively</label>
+<label><input name="vibe" type="checkbox" value="Quiet &amp; Intimate"/> Quiet &amp; Intimate</label>
+<label><input name="vibe" type="checkbox" value="Interactive"/> Interactive</label>
+<label><input name="vibe" type="checkbox" value="Educational"/> Educational</label>
+<label><input name="vibe" type="checkbox" value="Outdoor"/> Outdoor</label>
+<label><input name="vibe" type="checkbox" value="Indoor"/> Indoor</label>
+</div>
+</div>
+</div>
+<div class="form-section">
+<h2>Your Hot Date Title:</h2>
+<div class="generated-title" id="generatedTitle">
+                    [Auto-generated Title Preview]
+                </div>
+<p style="font-size: 0.9em; color: var(--text-light); margin-top: 10px;">(This title will be automatically generated based on your selections.)</p>
+</div>
+<button class="submit-button" type="submit">Post Hot Date</button>
+</form>
+<p class="back-link"><a href="{% url 'pages:dashboard' %}">← Back to Hot Dates</a></p>
+</div>
+<script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const hotDateForm = document.getElementById('hotDateForm');
+            const eventTypeSelect = document.getElementById('event_type');
+            const locationCitySelect = document.getElementById('location_city');
+            const numParticipantsSelect = document.getElementById('num_participants');
+            const generatedTitleDiv = document.getElementById('generatedTitle');
+            // Removed customTaglineInput as the field is removed
+
+            // Set min date for the date picker to today
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+            document.getElementById('event_date').min = `${year}-${month}-${day}`;
+
+            // Function to update the generated title preview
+            function updateGeneratedTitle() {
+                const eventType = eventTypeSelect.value;
+                const locationCity = locationCitySelect.value;
+                const numParticipants = numParticipantsSelect.value;
+                // Removed customTagline as it's no longer used
+
+                let title = "[Auto-generated Title Preview]";
+
+                if (eventType && locationCity && numParticipants) {
+                    let participantsText = '';
+                    if (numParticipants === '2') {
+                        participantsText = ' (1-on-1)';
+                    } else if (numParticipants === '3-5') {
+                        participantsText = ' (Small Group)';
+                    } else if (numParticipants === '6+') {
+                        participantsText = ' (Larger Group)';
+                    }
+
+                    title = `${eventType} in ${locationCity}${participantsText}`;
+                    // Removed tagline from title generation
+                }
+                generatedTitleDiv.textContent = title;
+            }
+
+            // Add event listeners to update title on input change
+            eventTypeSelect.addEventListener('change', updateGeneratedTitle);
+            locationCitySelect.addEventListener('change', updateGeneratedTitle);
+            numParticipantsSelect.addEventListener('change', updateGeneratedTitle);
+            // Removed event listener for customTaglineInput
+
+            // Initial title update on page load
+            updateGeneratedTitle();
+
+            // Handle form submission
+            hotDateForm.addEventListener('submit', function(event) {
+                event.preventDefault(); // Prevent actual form submission
+
+                // Basic validation
+                if (!event_date.value || !event_time.value || !eventTypeSelect.value || !locationCitySelect.value || !numParticipantsSelect.value) {
+                    alert('Please fill in all required fields (Date, Time, Activity, City, Participants).');
+                    return;
+                }
+
+                // Collect form data
+                const formData = new FormData(hotDateForm);
+                const hotDateData = {};
+                for (let [key, value] of formData.entries()) {
+                    hotDateData[key] = value;
+                }
+
+                // Get selected vibes
+                const selectedVibes = [];
+                document.querySelectorAll('input[name="vibe"]:checked').forEach(checkbox => {
+                    selectedVibes.push(checkbox.value);
+                });
+                hotDateData.vibes = selectedVibes;
+
+                hotDateData.generated_title = generatedTitleDiv.textContent; // Add the generated title
+
+                console.log("Hot Date Data:", hotDateData);
+                alert("Hot Date submitted! It will now be visible to members. (In a real app, this data would be sent to the server.)");
+
+                // Here, you would typically send `hotDateData` to your backend server
+                // using Fetch API or XMLHttpRequest.
+                // After successful submission, you might redirect the user or show a success message.
+
+                // Example: Redirect back to hotdates.html or dashboard
+                // window.location.href = 'hotdates.html';
+            });
+        });
+    </script>
+</body>
+</html>

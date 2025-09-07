@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="240" viewBox="0 0 800 240">
+  
+  <g transform="translate(40,170)">
+    <text x="0" y="0" font-family="Arial Black, Arial, Helvetica, sans-serif" font-weight="900" font-size="180" letter-spacing="4">
+      <tspan fill="#000000">GR8</tspan><tspan dx="12" fill="#FF3366">D</tspan>
+    </text>
+  </g>
+</svg>

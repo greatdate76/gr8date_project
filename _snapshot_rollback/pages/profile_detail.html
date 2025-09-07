@@ -1,0 +1,108 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>{{ profile.display_name }} • GR8DATE</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="{% static 'css/base.css' %}" rel="stylesheet">
+  <style>
+    /* (same styles you had, unchanged) */
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <a class="icon" href="{% url 'pages:dashboard' %}" title="Return to Dashboard" aria-label="Return to Dashboard">⤺</a>
+      <a class="icon" href="{% url 'pages:logout' %}" title="Log Out" aria-label="Log out">⎋</a>
+    </header>
+
+    <section class="head">
+      {% if profile.primary_image %}
+        <img class="avatar" src="{{ profile.primary_image.url }}" alt="{{ profile.display_name }}">
+      {% else %}
+        {% with fp=profile.public_images.first %}
+          {% if fp and fp.image and fp.image.name %}
+            <img class="avatar" src="{{ fp.image.url }}" alt="{{ profile.display_name }}">
+          {% else %}
+            <div class="avatar" role="img" aria-label="No profile image"></div>
+          {% endif %}
+        {% endwith %}
+      {% endif %}
+      <div>
+        <h1>{{ profile.display_name }}{% if profile.age %}, {{ profile.age }}{% endif %}</h1>
+        <div class="meta">{{ profile.location }}</div>
+      </div>
+    </section>
+
+    <section>
+      <h2>About</h2>
+      <p>{{ profile.bio|linebreaks }}</p>
+    </section>
+
+    {% if photos_public or photos_additional %}
+      <section>
+        <h2>Photos</h2>
+        <div class="grid" id="public-grid">
+          {% for ph in photos_public %}
+            {% if ph.image and ph.image.name %}
+              <div class="tile" data-index="{{ forloop.counter0 }}" data-src="{{ ph.image.url }}" data-caption="{{ ph.caption|default:''|escape }}">
+                <img src="{{ ph.image.url }}" alt="{{ profile.display_name }}">
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% with base=photos_public|length %}
+            {% for ph in photos_additional %}
+              {% if ph.image and ph.image.name %}
+                <div class="tile" data-index="{{ base|add:forloop.counter0 }}" data-src="{{ ph.image.url }}" data-caption="{{ ph.caption|default:''|escape }}">
+                  <img src="{{ ph.image.url }}" alt="{{ profile.display_name }}">
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+        </div>
+      </section>
+    {% endif %}
+
+    {% if photos_private %}
+      <section>
+        <h2>Private Photos</h2>
+        <div class="grid">
+          {% for ph in photos_private %}
+            {% if ph.image and ph.image.name %}
+              <div class="tile private" aria-label="Private photo">
+                <img src="{{ ph.image.url }}" alt="Private photo">
+                <div class="veil">
+                  <form action="{% url 'pages:request_private_access' profile.pk %}" method="post" style="display:flex;flex-direction:column;gap:8px;align-items:center;">
+                    {% csrf_token %}
+                    <div>Private • Request access to view</div>
+                    <button class="btn btn-primary" type="submit">Request Access</button>
+                  </form>
+                </div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <p class="hint">Private photos remain blurred until the owner approves your request.</p>
+      </section>
+    {% endif %}
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" aria-hidden="true">
+      <button class="lb-close" id="lbClose" aria-label="Close">✕</button>
+      <div class="lb-controls">
+        <button class="lb-btn" id="lbPrev" aria-label="Previous image">◀</button>
+        <button class="lb-btn" id="lbNext" aria-label="Next image">▶</button>
+      </div>
+      <img id="lbImg" alt="">
+      <div class="caption" id="lbCaption"></div>
+    </div>
+  </main>
+
+  <script>
+    /* (your existing lightbox JS, unchanged) */
+  </script>
+</body>
+</html>
+

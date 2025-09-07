@@ -1,0 +1,67 @@
+{% extends "pages/base.html" %}
+{% load static %}
+
+{% block title %}Blog · GR8Date{% endblock %}
+
+{% block content %}
+<style>
+  .blog-hero{display:flex;align-items:center;justify-content:center;text-align:center;padding:56px 16px;background:#fff}
+  .blog-hero h1{margin:0;font-size:40px}
+  .blog-hero p{margin:10px 0 0;color:#666}
+
+  .blog-wrap{max-width:1100px;margin:32px auto;padding:0 16px}
+  .blog-grid{display:grid;grid-template-columns:1fr;gap:24px}
+  .blog-card{background:#fff;border:1px solid #eee;border-radius:16px;overflow:hidden;box-shadow:0 6px 18px rgba(0,0,0,0.06);transition:transform .2s ease, box-shadow .2s ease}
+  .blog-card:hover{transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,0.08)}
+  .blog-card a{text-decoration:none;color:inherit}
+  .blog-thumb{display:block;line-height:0}
+  .blog-thumb img{width:100%;height:220px;object-fit:cover;display:block}
+  .blog-body{padding:18px}
+  .blog-title{margin:0 0 6px;font-size:22px;line-height:1.3}
+  .meta{font-size:13px;color:#666;margin-bottom:10px}
+  .excerpt{color:#333;line-height:1.55}
+  .more{display:inline-block;margin-top:12px;color:#ff3366;font-weight:bold}
+  .empty{color:#666;text-align:center;margin:60px 0}
+
+  @media (min-width:720px){ .blog-grid{grid-template-columns:repeat(2,1fr)} }
+  @media (min-width:1024px){ .blog-grid{grid-template-columns:repeat(3,1fr)} }
+</style>
+
+<section class="blog-hero">
+  <div>
+    <h1>GR8Date Blog</h1>
+    <p>News, tips, and updates — no paywalls, just value.</p>
+  </div>
+</section>
+
+<div class="blog-wrap">
+  {% if posts %}
+    <div class="blog-grid">
+      {% for post in posts %}
+        <article class="blog-card">
+          <a class="blog-thumb" href="{% url 'pages:blog_detail' slug=post.slug %}">
+            {% if post.featured_image %}
+              <img src="{{ post.featured_image.url }}" alt="{{ post.title }}">
+            {% else %}
+              <img src="{% static 'images/herogirl.jpg' %}" alt="{{ post.title }}">
+            {% endif %}
+          </a>
+          <div class="blog-body">
+            <h2 class="blog-title">
+              <a href="{% url 'pages:blog_detail' slug=post.slug %}">{{ post.title }}</a>
+            </h2>
+            <div class="meta">
+              {{ post.publish_at|date:"M j, Y" }} · {{ post.category|default:"Updates" }}
+            </div>
+            <p class="excerpt">{{ post.excerpt|default:post.content|truncatewords:28 }}</p>
+            <a class="more" href="{% url 'pages:blog_detail' slug=post.slug %}">Read more →</a>
+          </div>
+        </article>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="empty">No posts yet.</p>
+  {% endif %}
+</div>
+{% endblock %}
+

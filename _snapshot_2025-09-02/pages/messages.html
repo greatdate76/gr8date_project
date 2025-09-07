@@ -1,0 +1,294 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Messages - GR8Date</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        :root {
+            --brand-primary-red: #ff3366;
+            --border-light: #ddd;
+            --background-white: #fff;
+            --text-dark: #333;
+            --text-light: #777;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            margin: 0;
+            padding: 0; /* Changed for full-width header */
+        }
+        
+        /* --- Header Styles --- */
+        .app-header {
+          background-color: var(--background-white);
+          border-bottom: 1px solid var(--border-light);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* --- New Logo Styles --- */
+        .logo-img {
+          height: 40px;
+          width: auto;
+          vertical-align: middle;
+          display: block;
+        }
+        .logo-mobile {
+          display: none;
+        }
+        
+        @media (max-width: 600px) {
+          .logo-desktop {
+            display: none;
+          }
+          .logo-mobile {
+            display: block;
+          }
+          .logo-img {
+            height: 35px;
+          }
+        }
+
+        .app-header .auth-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .app-header .auth-button {
+          background-color: var(--brand-primary-red);
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          transition: background-color 0.3s ease;
+        }
+        .app-header .auth-button:hover {
+          background-color: #e62e5c;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #ff3366;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        h2 {
+            color: #333;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+        }
+        .message-thread {
+            border: 1px solid #eee;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            padding: 15px;
+            background-color: #f9f9f9;
+        }
+        .message-thread h3 {
+            margin-top: 0;
+            color: #333;
+            font-size: 1.0em; /* Slightly smaller for thread titles */
+            margin-bottom: 5px;
+        }
+        .message-thread p {
+            font-size: 0.85em; /* Decreased font size */
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.4;
+        }
+        .message-thread p strong {
+            color: #ff3366;
+        }
+        .message-thread .actions {
+            text-align: right;
+            margin-top: 10px;
+        }
+        .message-thread .actions button {
+            background-color: #ff3366;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.8em; /* Decreased button font size */
+            margin-left: 8px;
+            transition: background-color 0.3s ease;
+        }
+        .message-thread .actions button:hover {
+            background-color: #e62e5c;
+        }
+        .message-thread .actions button.green-btn {
+            background-color: #4CAF50;
+        }
+        .message-thread .actions button.green-btn:hover {
+            background-color: #45a049;
+        }
+        .message-thread .actions button.grey-btn {
+            background-color: #9e9e9e;
+        }
+        .message-thread .actions button.grey-btn:hover {
+            background-color: #888;
+        }
+        /* New style for the blue profile button within message threads */
+        .message-thread .actions button.blue-btn {
+            background-color: #007bff; /* Standard blue color */
+        }
+        .message-thread .actions button.blue-btn:hover {
+            background-color: #0056b3; /* Darker blue on hover */
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: var(--brand-primary-red);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #fce4ec;
+            transition: background-color 0.3s ease;
+        }
+        .back-link a:hover {
+            background-color: #f8bbd0;
+        }
+    </style>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:home' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button" href="{% url 'pages:dashboard' %}">Dashboard</a>
+</div>
+</header>
+<div class="container">
+<h1>Your Full Inbox</h1>
+<p style="text-align: center; font-size: 0.9em;">Manage all your conversations and pending requests here.</p>
+<h2>Recent Conversations</h2>
+<div class="message-thread">
+<h3>Conversation with Sarah (Sydney)</h3>
+<p><strong>Sarah:</strong> "Hey there! Your profile caught my eye. Love your passion for hiking!"</p>
+<p><strong>You:</strong> "Thanks, Sarah! Big fan of the outdoors. Any favorite trails around Sydney?"</p>
+<p style="font-style: italic; color: #888;">Latest: "Definitely! The Blue Mountains are stunning this time of year."</p>
+<div class="actions">
+<button>View Full Chat</button>
+<button class="green-btn">Reply</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<div class="message-thread">
+<h3>Conversation with John (Melbourne)</h3>
+<p><strong>John:</strong> "Just saw your profile, looks like we have a lot in common with [common interest]!"</p>
+<p style="font-style: italic; color: #888;">Latest: "Sounds great! What kind of books do you usually read?"</p>
+<div class="actions">
+<button>View Full Chat</button>
+<button class="green-btn">Reply</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<div class="message-thread">
+<h3>Conversation with Michael (Perth)</h3>
+<p><strong>Michael:</strong> "Are you interested in group meetups for board games? There's one this weekend."</p>
+<p style="font-style: italic; color: #888;">Latest: "That sounds fun! Where is it and what time?"</p>
+<div class="actions">
+<button>View Full Chat</button>
+<button class="green-btn">Reply</button>
+<button class="blue-btn">Profile</button> </div>
+</div>
+<h2>Pending Requests</h2>
+<div class="message-thread">
+<h3>Photo Access Request from Emily (Brisbane)</h3>
+<p><strong>Emily:</strong> "I'd love to see your private photos. Could you grant me access?"</p>
+<p style="font-style: italic; color: #888;">Received 2 hours ago.</p>
+<div class="actions">
+<button class="green-btn">Allow Access</button>
+<button>Deny Access</button>
+</div>
+</div>
+<div class="message-thread">
+<h3>Read Receipt Request from David (Gold Coast)</h3>
+<p><strong>David:</strong> "Do you mind enabling read receipts for our chat? I like knowing if my messages are seen."</p>
+<p style="font-style: italic; color: #888;">Received yesterday.</p>
+<div class="actions">
+<button class="green-btn">Confirm</button>
+<button>Cancel</button>
+</div>
+</div>
+<div class="message-thread">
+<h3>You Requested Access to Bianca's Private Photos</h3>
+<p style="font-style: italic; color: #888;">Status: Pending Bianca's response. You will be notified when a decision is made.</p>
+<div class="actions">
+<button class="grey-btn">Cancel Request</button>
+</div>
+</div>
+<h2>Notifications</h2>
+<div class="message-thread">
+<h3>New Match!</h3>
+<p>You have a new **Mutual Match** with **Sophie** from Sunshine Coast! Check out her profile!</p>
+<div class="actions">
+<button class="green-btn">View Profile</button>
+</div>
+</div>
+<div class="message-thread">
+<h3>Event Reminder: Cooking Class</h3>
+<p>Your Hot Date for the **"Cooking Class with Chef Antonio"** is tomorrow at 6 PM! Don't be late!</p>
+<div class="actions">
+<button>View Event</button>
+</div>
+</div>
+<p class="back-link"><a href="{% url 'pages:dashboard' %}">← Back to Dashboard</a></p>
+</div>
+<script>
+        // Example of how you might handle button clicks on this full page.
+        // In a real app, these would make API calls and dynamically update the UI.
+        document.querySelectorAll('.message-thread .actions button').forEach(button => {
+            button.addEventListener('click', function() {
+                const action = this.textContent.trim();
+                const threadTitle = this.closest('.message-thread').querySelector('h3').textContent;
+
+                if (action === "Profile") {
+                    alert(`Navigating to profile for "${threadTitle.split('Conversation with ')[1] || 'user'}"\n(This would link to the user's profile!)`);
+                    // In a real application, you would change the window location:
+                    // window.location.href = 'profile.html?user=' + encodeURIComponent(threadTitle.split('Conversation with ')[1].split(' (')[0]);
+                } else {
+                    alert(`Action: "${action}" on "${threadTitle}"\n(This would send a request to the server!)`);
+
+                    // For demonstration, remove the message/request after an action
+                    if (action === "Allow Access" || action === "Deny Access" || action === "Confirm" || action === "Cancel" || action === "Reply" || action === "View Profile" || action === "View Event" || action === "Cancel Request") {
+                        this.closest('.message-thread').remove();
+                        // In a real app, you'd update state/UI properly, not just remove.
+                        // You might also re-check if there are any remaining messages/requests and update headings.
+                    }
+                }
+            });
+        });
+    </script>
+</body>
+</html>

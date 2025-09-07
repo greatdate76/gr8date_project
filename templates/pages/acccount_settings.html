@@ -1,0 +1,523 @@
+{% load static %}
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Account Settings – GR8Date</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+<style>
+        :root {
+            --brand-primary-red: #ff3366;
+            --border-light: #ddd;
+            --background-white: #fff;
+            --text-dark: #333;
+            --text-light: #777;
+            --input-disabled-bg: #e9ecef;
+            --input-disabled-text: #6c757d;
+            --shadow-light: rgba(0,0,0,0.1);
+            --color-green: #28a745;
+            --color-red: #dc3545;
+        }
+
+        body {
+            margin: 0;
+            padding: 0; /* Adjusted for full-width header */
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+
+        /* --- Header Styles --- */
+        .app-header {
+          background-color: var(--background-white);
+          border-bottom: 1px solid var(--border-light);
+          padding: 0.5rem 1rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          position: sticky;
+          top: 0;
+          z-index: 1000;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+        
+        /* --- New Logo Styles --- */
+        .logo-img {
+          height: 40px;
+          width: auto;
+          vertical-align: middle;
+          display: block;
+        }
+        .logo-mobile {
+          display: none;
+        }
+        
+        @media (max-width: 600px) {
+          .logo-desktop {
+            display: none;
+          }
+          .logo-mobile {
+            display: block;
+          }
+          .logo-img {
+            height: 35px;
+          }
+        }
+
+        .app-header .auth-buttons {
+          display: flex;
+          gap: 1rem;
+        }
+        .app-header .auth-button {
+          background-color: var(--brand-primary-red);
+          color: white;
+          padding: 0.5rem 1rem;
+          border: none;
+          border-radius: 20px;
+          text-decoration: none;
+          font-weight: bold;
+          font-size: 0.9rem;
+          white-space: nowrap;
+          transition: background-color 0.3s ease;
+        }
+        .app-header .auth-button:hover {
+          background-color: #e62e5c;
+        }
+        .app-header .auth-button.secondary {
+          background-color: transparent;
+          color: var(--brand-primary-red);
+          border: 1px solid var(--brand-primary-red);
+        }
+        .app-header .auth-button.secondary:hover {
+          background-color: rgba(255, 51, 102, 0.1);
+        }
+        @media (max-width: 991px) {
+            .app-header {
+                padding: 0.5rem 0.5rem;
+            }
+            .app-header .auth-buttons {
+                gap: 0.5rem;
+            }
+            .app-header .auth-button {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: var(--background-white);
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+
+        h1 {
+            color: var(--brand-primary-red);
+            margin-bottom: 20px;
+            font-size: 2.2rem;
+        }
+
+        p.intro {
+            font-size: 1.05rem;
+            color: var(--text-light);
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .profile-section {
+            background-color: var(--background-white);
+            border-radius: 8px;
+            box-shadow: 0 2px 5px var(--shadow-light);
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        .profile-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border-light);
+            cursor: pointer;
+            background-color: #fcfcfc;
+        }
+        .profile-section-header h3 {
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--text-dark);
+        }
+        .profile-section-header .material-icons {
+            font-size: 1.5rem;
+            color: var(--text-light);
+            transition: transform 0.3s ease;
+        }
+        .profile-section-header.expanded .material-icons {
+            transform: rotate(45deg);
+        }
+        .profile-section-content {
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border-light);
+            padding-top: 1.5rem;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+        }
+        .profile-section-content.expanded {
+            max-height: 2000px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 8px;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="password"],
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            background-color: var(--background-white);
+            color: var(--text-dark);
+        }
+        .form-group .non-editable-field {
+            background-color: var(--input-disabled-bg);
+            color: var(--input-disabled-text);
+            padding: 12px;
+            border: 1px solid var(--border-light);
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            width: 100%;
+            font-weight: bold;
+        }
+
+        .password-feedback {
+            font-size: 0.85rem;
+            margin-top: 0.5rem;
+            padding-left: 0.5rem;
+        }
+        .password-feedback p {
+            margin: 0.2rem 0;
+            color: var(--color-red);
+            display: flex;
+            align-items: center;
+        }
+        .password-feedback p.met {
+            color: var(--color-green);
+        }
+        .password-feedback .material-icons {
+            font-size: 1rem;
+            margin-right: 0.3rem;
+        }
+        input.error-field {
+            border: 2px solid var(--color-red) !important;
+        }
+
+        .action-button {
+            background-color: var(--brand-primary-red);
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 25px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            margin-top: 10px;
+        }
+        .action-button:hover {
+            background-color: #e62e5c;
+        }
+        .action-button.delete-button {
+            background-color: var(--color-red);
+            margin-top: 20px;
+        }
+        .action-button.delete-button:hover {
+            background-color: #c82333;
+        }
+        .delete-warning-text {
+            color: var(--color-red);
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 30px;
+        }
+        .back-link a {
+            color: var(--brand-primary-red);
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            background-color: #fce4ec;
+            transition: background-color 0.3s ease;
+        }
+        .back-link a:hover {
+            background-color: #f8bbd0;
+        }
+
+        @media (max-width: 768px) {
+            .action-button {
+                width: 100%;
+                margin-top: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+<header class="app-header">
+<a class="logo-link" href="{% url 'pages:index' %}">
+<img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}"/>
+<img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}"/>
+</a>
+<div class="auth-buttons">
+<a class="auth-button" href="{% url 'pages:dashboard' %}">Dashboard</a>
+</div>
+</header>
+<div class="container">
+<h1>Account Settings</h1>
+<p class="intro">Manage your login credentials and account preferences.</p>
+<div class="profile-section" id="email-settings-section">
+<div class="profile-section-header">
+<h3>Email Settings</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label>Current Email:</label>
+<div class="non-editable-field" id="current_email_display"></div>
+</div>
+<div class="form-group">
+<label for="new_email">New Email:</label>
+<input id="new_email" placeholder="Enter your new email address" type="text"/>
+</div>
+<div class="form-group">
+<label for="confirm_new_email">Confirm New Email:</label>
+<input id="confirm_new_email" placeholder="Re-enter your new email address" type="text"/>
+</div>
+<div class="form-group">
+<label for="email_confirm_password">Confirm Your Password:</label>
+<input id="email_confirm_password" placeholder="Enter your current password" type="password"/>
+</div>
+<button class="action-button" id="save_email_button" type="button">Save Email</button>
+</div>
+</div>
+<div class="profile-section" id="password-settings-section">
+<div class="profile-section-header">
+<h3>Password Settings</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<div class="form-group">
+<label for="current_password">Current Password:</label>
+<input id="current_password" placeholder="Enter your current password" type="password"/>
+</div>
+<div class="form-group">
+<label for="new_password">New Password:</label>
+<input id="new_password" placeholder="Enter your new password" type="password"/>
+<div class="password-feedback" id="password-feedback">
+<p id="length-check"><span class="material-icons">cancel</span> At least 8 characters</p>
+<p id="lowercase-check"><span class="material-icons">cancel</span> One lowercase letter</p>
+<p id="uppercase-check"><span class="material-icons">cancel</span> One uppercase letter</p>
+<p id="number-check"><span class="material-icons">cancel</span> One number</p>
+<p id="special-check"><span class="material-icons">cancel</span> One special character (!@#$%^&amp;*)</p>
+</div>
+</div>
+<div class="form-group">
+<label for="confirm_new_password">Confirm New Password:</label>
+<input id="confirm_new_password" placeholder="Re-enter your new password" type="password"/>
+</div>
+<button class="action-button" id="save_password_button" type="button">Save Password</button>
+</div>
+</div>
+<div class="profile-section" id="delete-account-section">
+<div class="profile-section-header">
+<h3>Delete Account</h3>
+<span class="material-icons">add</span>
+</div>
+<div class="profile-section-content">
+<p class="delete-warning-text">Deleting your account is permanent and cannot be undone. All your profile data, messages, and matches will be lost.</p>
+<div class="form-group">
+<label for="delete_confirm_password">Confirm Your Password to Delete:</label>
+<input id="delete_confirm_password" placeholder="Enter your password" type="password"/>
+</div>
+<button class="action-button delete-button" id="delete_account_button" type="button">Delete Account</button>
+</div>
+</div>
+<p class="back-link"><a href="{% url 'pages:my_profile' %}">← Back to Profile Options</a></p>
+</div>
+<script>
+        function toggleSection(headerElement) {
+            const content = headerElement.nextElementSibling;
+            const icon = headerElement.querySelector('.material-icons');
+            
+            headerElement.classList.toggle('expanded');
+            content.classList.toggle('expanded');
+            icon.textContent = content.classList.contains('expanded') ? 'remove' : 'add';
+
+            if (content.classList.contains('expanded')) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+            } else {
+                content.style.maxHeight = '0';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const currentUser = {
+                email: "bl****nd@gm**.com",
+                currentPassword: "Password123!"
+            };
+
+            document.getElementById('current_email_display').textContent = currentUser.email;
+
+            const newPasswordInput = document.getElementById('new_password');
+            if (newPasswordInput) {
+                newPasswordInput.addEventListener('input', updatePasswordFeedback);
+            }
+
+            function updatePasswordFeedback() {
+                const password = newPasswordInput.value;
+                const lengthCheck = document.getElementById('length-check');
+                const lowercaseCheck = document.getElementById('lowercase-check');
+                const uppercaseCheck = document.getElementById('uppercase-check');
+                const numberCheck = document.getElementById('number-check');
+                const specialCheck = document.getElementById('special-check');
+
+                const hasLength = password.length >= 8;
+                const hasLowercase = /[a-z]/.test(password);
+                const hasUppercase = /[A-Z]/.test(password);
+                const hasNumber = /\d/.test(password);
+                const hasSpecial = /[!@#$%^&*]/.test(password);
+
+                updateCheck(lengthCheck, hasLength);
+                updateCheck(lowercaseCheck, hasLowercase);
+                updateCheck(uppercaseCheck, hasUppercase);
+                updateCheck(numberCheck, hasNumber);
+                updateCheck(specialCheck, hasSpecial);
+
+                if (hasLength && hasLowercase && hasUppercase && hasNumber && hasSpecial) {
+                    newPasswordInput.classList.remove('error-field');
+                } else {
+                    newPasswordInput.classList.add('error-field');
+                }
+            }
+
+            function updateCheck(element, isMet) {
+                const icon = element.querySelector('.material-icons');
+                if (isMet) {
+                    element.classList.add('met');
+                    element.classList.remove('unmet');
+                    icon.textContent = 'check_circle';
+                } else {
+                    element.classList.add('unmet');
+                    element.classList.remove('met');
+                    icon.textContent = 'cancel';
+                }
+            }
+
+            document.querySelectorAll('.profile-section-header').forEach(header => {
+                header.addEventListener('click', function() {
+                    toggleSection(this);
+                });
+            });
+
+            // Expand email section by default
+            document.getElementById('email-settings-section').querySelector('.profile-section-header').click();
+
+            document.getElementById('save_email_button').addEventListener('click', function() {
+                const newEmail = document.getElementById('new_email').value;
+                const confirmNewEmail = document.getElementById('confirm_new_email').value;
+                const emailConfirmPassword = document.getElementById('email_confirm_password').value;
+
+                if (!newEmail || !confirmNewEmail || !emailConfirmPassword) {
+                    alert("Please fill in all fields to change your email.");
+                    return;
+                }
+                if (newEmail !== confirmNewEmail) {
+                    alert("New email addresses do not match.");
+                    return;
+                }
+                if (emailConfirmPassword !== currentUser.currentPassword) {
+                    alert("Incorrect password. Please try again.");
+                    return;
+                }
+
+                alert(`Email change requested to: ${newEmail}. (In a real app, this would be processed by the server.)`);
+                document.getElementById('new_email').value = '';
+                document.getElementById('confirm_new_email').value = '';
+                document.getElementById('email_confirm_password').value = '';
+                document.getElementById('current_email_display').textContent = newEmail;
+            });
+
+            document.getElementById('save_password_button').addEventListener('click', function() {
+                const currentPassword = document.getElementById('current_password').value;
+                const newPassword = document.getElementById('new_password').value;
+                const confirmNewPassword = document.getElementById('confirm_new_password').value;
+
+                if (!currentPassword || !newPassword || !confirmNewPassword) {
+                    alert("Please fill in all fields to change your password.");
+                    return;
+                }
+                if (newPassword !== confirmNewPassword) {
+                    alert("New passwords do not match.");
+                    return;
+                }
+                if (currentPassword !== currentUser.currentPassword) {
+                    alert("Current password is incorrect.");
+                    return;
+                }
+                const passwordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*]).{8,}$/;
+                if (!passwordPattern.test(newPassword)) {
+                    alert("New password does not meet strength requirements.");
+                    return;
+                }
+
+                alert("Password successfully changed! (In a real app, this would be processed by the server.)");
+                document.getElementById('current_password').value = '';
+                document.getElementById('new_password').value = '';
+                document.getElementById('confirm_new_password').value = '';
+                currentUser.currentPassword = newPassword;
+            });
+
+            document.getElementById('delete_account_button').addEventListener('click', function() {
+                const deleteConfirmPassword = document.getElementById('delete_confirm_password').value;
+
+                if (!deleteConfirmPassword) {
+                    alert("Please enter your password to confirm account deletion.");
+                    return;
+                }
+                if (deleteConfirmPassword !== currentUser.currentPassword) {
+                    alert("Incorrect password. Account deletion cancelled.");
+                    return;
+                }
+
+                if (confirm("Are you absolutely sure you want to delete your account? This action cannot be undone.")) {
+                    alert("Account deletion initiated. Your account will be removed permanently. (In a real app, this would be processed by the server.)");
+                    window.location.href = 'index.html';
+                } else {
+                    alert("Account deletion cancelled.");
+                }
+                document.getElementById('delete_confirm_password').value = '';
+            });
+        });
+    </script>
+</body>
+</html>

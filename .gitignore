@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.so
+*.egg-info/
+.eggs/
+.venv/
+venv/
+ENV/
+.env
+.env.*
+
+# OS/IDE
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Django
+db.sqlite3
+/media/
+staticfiles/
+static_root/
+collectstatic/
+*.log
+
+# Archives & large dumps
+*.zip
+*.tar.gz
+*.tgz
+*.bak
+*.backup
+*.7z
+*.gz

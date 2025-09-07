@@ -1,0 +1,589 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ profile.username }}'s Profile – GR8Date</title>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+    }
+
+    :root {
+      --brand-primary-red: #ff3366;
+      --border-light: #ddd;
+      --background-white: #fff;
+      --text-dark: #333;
+      --text-light: #777;
+      --shadow-light: rgba(0,0,0,0.1);
+      --green-online: #4CAF50;
+      --grey-button-bg: #e0e0e0;
+      --grey-button-text: #555;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 1rem;
+    }
+
+    /* --- Header Styles --- */
+    .app-header {
+      background-color: var(--background-white);
+      border-bottom: 1px solid var(--border-light);
+      padding: 0.5rem 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    /* --- Logo Styles --- */
+    .logo-link {
+        padding-left: 1rem;
+    }
+    .logo-img {
+      height: 40px;
+      width: auto;
+      vertical-align: middle;
+      display: block;
+    }
+    .logo-mobile {
+      display: none;
+    }
+    
+    @media (max-width: 600px) {
+      .logo-desktop {
+        display: none;
+      }
+      .logo-mobile {
+        display: block;
+      }
+      .logo-img {
+        height: 35px;
+      }
+      .logo-link {
+        padding-left: 0.5rem;
+      }
+    }
+
+    .app-header .mobile-nav {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding-right: 1rem;
+    }
+    .app-header .mobile-nav a {
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+    .app-header .mobile-nav .icon {
+      width: 24px;
+      height: 24px;
+      cursor: pointer;
+    }
+    .app-header .mobile-nav .return-icon-rotated {
+        transform: rotate(90deg);
+    }
+
+    .app-header .desktop-nav {
+        display: none;
+        margin-left: auto;
+        gap: 1.5rem;
+        padding-right: 1rem;
+    }
+    .app-header .desktop-nav a {
+        color: var(--text-dark);
+        text-decoration: none;
+        font-weight: bold;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+    .app-header .desktop-nav a:hover {
+        background-color: var(--border-light);
+    }
+
+    footer.site-footer {
+        display: none;
+    }
+
+    .profile-content-area {
+      padding: 0;
+    }
+
+    .all-images-display-area {
+        background-color: var(--background-white);
+        box-shadow: 0 2px 5px var(--shadow-light);
+        border-radius: 8px 8px 0 0;
+        margin-bottom: 0;
+        overflow: hidden;
+    }
+
+    .all-images-gallery {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+        padding: 0.5rem;
+        background-color: #f0f0f0;
+    }
+
+    .all-images-gallery .gallery-item:first-child {
+        grid-column: span 2;
+        padding-top: 60%;
+    }
+    .all-images-gallery .gallery-item {
+        position: relative;
+        width: 100%;
+        padding-top: 100%;
+        overflow: hidden;
+        border-radius: 4px;
+        background-color: #e0e0e0;
+    }
+
+    .all-images-gallery .gallery-item img {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        display: block;
+    }
+
+    .all-images-gallery .placeholder-item {
+        background-color: #eee;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        color: var(--text-light);
+        font-size: 0.9rem;
+        text-align: center;
+        border: 1px dashed var(--border-light);
+    }
+    
+    .all-images-gallery .private-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.4);
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        color: white;
+        font-size: 0.8rem;
+        text-align: center;
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+    }
+    .all-images-gallery .private-overlay .material-icons {
+        font-size: 2rem;
+        margin-bottom: 0.3rem;
+        color: white;
+    }
+
+    .profile-basic-info {
+        background-color: var(--background-white);
+        box-shadow: 0 2px 5px var(--shadow-light);
+        border-radius: 0 0 8px 8px;
+        margin-bottom: 1.5rem;
+        padding: 1rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        position: relative;
+    }
+    .profile-basic-info h2 {
+      margin: 0;
+      font-size: 1.5rem;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .profile-basic-info h2 .material-icons {
+        color: var(--brand-primary-red);
+        font-size: 1.2rem;
+    }
+    .profile-basic-info p.tagline {
+      margin: 0.25rem 0 0.5rem 0;
+      font-size: 0.9rem;
+      color: var(--text-dark);
+    }
+    .profile-basic-info p.location {
+        margin: 0.25rem 0 1rem 0;
+        font-size: 0.9rem;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+    .profile-basic-info p.location .material-icons {
+        font-size: 1rem;
+    }
+
+    .profile-action-buttons {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      display: flex;
+      gap: 10px;
+      z-index: 100;
+    }
+    .profile-action-button {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .profile-action-button:hover {
+      background-color: white;
+      transform: scale(1.05);
+    }
+    .profile-action-button .material-icons {
+      font-size: 18px;
+      color: var(--text-dark);
+    }
+    .profile-action-button.favorite .material-icons {
+      color: var(--brand-primary-red);
+    }
+
+    .more-options {
+      position: relative;
+    }
+    .options-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      right: 0;
+      background-color: var(--background-white);
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      box-shadow: 0 4px 12px var(--shadow-light);
+      z-index: 101;
+      width: 160px;
+      padding: 0.5rem 0;
+    }
+    .options-menu.show {
+      display: block;
+    }
+    .options-menu-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.6rem 1rem;
+      color: var(--text-dark);
+      text-decoration: none;
+      font-size: 0.9rem;
+    }
+    .options-menu-item:hover {
+      background-color: #f4f4f4;
+    }
+    .options-menu-item .material-icons {
+      font-size: 1.1rem;
+      color: var(--text-light);
+    }
+
+    .message-input-section {
+        padding: 1rem 1.5rem;
+        background-color: var(--background-white);
+        border-top: 1px solid var(--border-light);
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        margin-top: 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px var(--shadow-light);
+    }
+    .message-input-section input {
+        flex-grow: 1;
+        border: 1px solid var(--border-light);
+        border-radius: 20px;
+        padding: 0.7rem 1rem;
+        font-size: 0.9rem;
+        outline: none;
+    }
+    .message-input-section button {
+        background-color: var(--brand-primary-red);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    .profile-section-display {
+      background-color: var(--background-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 5px var(--shadow-light);
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+    .profile-section-display h3 {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid var(--border-light);
+      margin: 0;
+      font-size: 1.1rem;
+      color: var(--text-dark);
+      background-color: #fcfcfc;
+    }
+    .profile-section-display .bio-text {
+        padding: 1rem 1.5rem;
+        color: var(--text-dark);
+        line-height: 1.5;
+    }
+    .interests-display-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        padding: 1rem 1.5rem;
+    }
+    .interests-display-tags .tag {
+        background-color: var(--grey-button-bg);
+        color: var(--text-dark);
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+    .attributes-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 10px;
+        padding: 1rem 1.5rem;
+    }
+    .attribute-item {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 0.5rem 0;
+    }
+    .attribute-item strong {
+        font-size: 0.8rem;
+        color: var(--text-light);
+        text-transform: uppercase;
+        margin-bottom: 3px;
+    }
+    .attribute-item span {
+        font-size: 0.95rem;
+        color: var(--text-dark);
+        font-weight: bold;
+    }
+
+    @media (min-width: 992px) {
+      .app-header .mobile-nav {
+        display: none;
+      }
+      .app-header .desktop-nav {
+        display: flex;
+      }
+      .all-images-gallery {
+          grid-template-columns: repeat(4, 1fr);
+          padding: 1rem;
+          gap: 1rem;
+      }
+      .all-images-gallery .gallery-item:first-child {
+        grid-column: span 2;
+        padding-top: 60%;
+      }
+      .profile-basic-info {
+        padding: 1.5rem 2rem;
+      }
+      .attributes-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="app-header">
+    <a href="{% url 'pages:home' %}" class="logo-link">
+        <img src="{% static 'images/gr8date-logo-desktop.svg' %}" alt="GR8Date Logo" class="logo-img logo-desktop">
+        <img src="{% static 'images/gr8date-logo-mobile.svg' %}" alt="GR8Date Logo" class="logo-img logo-mobile">
+    </a>
+    <nav class="mobile-nav">
+        <a href="{% url 'pages:dashboard' %}" title="Return to Dashboard" class="nav-link"><span class="material-icons icon return-icon-rotated">u_turn_left</span></a>
+        <a href="#" title="Search" class="nav-link"><svg class="icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg></a>
+    </nav>
+    <nav class="desktop-nav">
+      <a href="{% url 'pages:dashboard' %}">Dashboard</a>
+      <a href="#">Search</a>
+    </nav>
+  </header>
+
+  <main class="profile-content-area container">
+    <div class="all-images-display-area">
+        <div class="all-images-gallery">
+            {% if profile.public_images.all %}
+                {% for image in profile.public_images.all %}
+                    <div class="gallery-item">
+                        <img src="{{ image.image.url }}" alt="Photo of {{ profile.username }}">
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="gallery-item placeholder-item" style="grid-column:1/-1;">No photos available.</div>
+            {% endif %}
+            
+            {# Example for private photos - assumes you pass a flag from the view #}
+            {% if can_view_private %}
+                {% for image in profile.private_images.all %}
+                    <div class="gallery-item">
+                        <img src="{{ image.image.url }}" alt="Private photo of {{ profile.username }}">
+                    </div>
+                {% endfor %}
+            {% elif profile.private_images.all %}
+                {% for image in profile.private_images.all %}
+                 <div class="gallery-item">
+                    <img src="{{ image.image.url }}" alt="Private photo of {{ profile.username }}" style="filter: blur(20px);">
+                    <div class="private-overlay">
+                        <span class="material-icons">lock</span>
+                        <span>Request Access to<br>View Private Photos</span>
+                    </div>
+                 </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="profile-basic-info" data-username="{{ profile.username }}">
+      <div class="profile-action-buttons">
+        <div class="profile-action-button message" title="Send message">
+          <span class="material-icons">chat_bubble_outline</span>
+        </div>
+        <div class="profile-action-button favorite" title="Add to favorites">
+          <span class="material-icons">favorite_border</span>
+        </div>
+        <div class="profile-action-button more-options" id="more-options-button" title="More options">
+            <span class="material-icons">more_vert</span>
+            <div class="options-menu" id="options-menu">
+                <a href="#" class="options-menu-item" id="block-user-btn">
+                    <span class="material-icons">block</span>
+                    <span>Block User</span>
+                </a>
+                <a href="#" class="options-menu-item" id="report-user-btn">
+                    <span class="material-icons">report</span>
+                    <span>Report User</span>
+                </a>
+            </div>
+        </div>
+      </div>
+      
+      <h2>{{ profile.username }} {% if profile.is_verified %}<span class="material-icons">check_circle</span>{% endif %}</h2> 
+      <p class="tagline">{{ profile.tagline }}</p>
+      <p class="location"><span class="material-icons">location_on</span> {{ profile.location }}</p>
+    </div>
+
+    <div class="message-input-section">
+        <input type="text" placeholder="Type your message here">
+        <button><span class="material-icons">send</span></button>
+    </div>
+
+    <div class="profile-section-display">
+      <h3>About</h3>
+      <div class="bio-text">
+        <p>{{ profile.about_me|linebreaksbr }}</p>
+      </div>
+    </div>
+
+    <div class="profile-section-display">
+      <h3>Wants</h3>
+      <div class="bio-text">
+        {{ profile.looking_for|linebreaksbr }}
+      </div>
+    </div>
+
+    <div class="profile-section-display">
+      <h3>Interests</h3>
+      <div class="interests-display-tags">
+        {% for interest in profile.interests.all %}
+            <span class="tag">{{ interest.name }}</span>
+        {% empty %}
+            <p>No interests listed.</p>
+        {% endfor %}
+        </div>
+    </div>
+
+    <div class="profile-section-display">
+      <h3>Attributes</h3>
+      <div class="attributes-grid">
+        {% if profile.age %}<div class="attribute-item"><strong>Age</strong><span>{{ profile.age }}</span></div>{% endif %}
+        {% if profile.body_type %}<div class="attribute-item"><strong>Body Type</strong><span>{{ profile.get_body_type_display }}</span></div>{% endif %}
+        {% if profile.gender %}<div class="attribute-item"><strong>Gender</strong><span>{{ profile.get_gender_display }}</span></div>{% endif %}
+        {% if profile.relationship_status %}<div class="attribute-item"><strong>Relationship</strong><span>{{ profile.get_relationship_status_display }}</span></div>{% endif %}
+        {% if profile.children %}<div class="attribute-item"><strong>Children</strong><span>{{ profile.get_children_display }}</span></div>{% endif %}
+        {% if profile.smoker %}<div class="attribute-item"><strong>Smokes</strong><span>{{ profile.get_smoker_display }}</span></div>{% endif %}
+        </div>
+    </div>
+  </main>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const moreOptionsButton = document.getElementById('more-options-button');
+      const optionsMenu = document.getElementById('options-menu');
+
+      if (moreOptionsButton && optionsMenu) {
+        const profileInfo = document.querySelector('.profile-basic-info');
+        const displayName = profileInfo ? profileInfo.dataset.username : 'this user';
+
+        moreOptionsButton.addEventListener('click', function(event) {
+          event.stopPropagation();
+          optionsMenu.classList.toggle('show');
+        });
+
+        window.addEventListener('click', function(event) {
+          if (!moreOptionsButton.contains(event.target)) {
+            if (optionsMenu.classList.contains('show')) {
+              optionsMenu.classList.remove('show');
+            }
+          }
+        });
+        
+        document.getElementById('block-user-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            // In a real Django app, this would be a link to a URL like:
+            // href="{% url 'block_user' profile.id %}"
+            if (confirm(`Are you sure you want to block ${displayName}? They will not be able to see your profile or contact you.`)) {
+                alert('User blocked. (This would be a server request)');
+                optionsMenu.classList.remove('show');
+            }
+        });
+
+        document.getElementById('report-user-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            // In a real Django app, this would be a link to a URL like:
+            // href="{% url 'report_user' profile.id %}"
+            alert(`Opening report form for user: ${displayName}.`);
+            optionsMenu.classList.remove('show');
+        });
+      }
+    });
+  </script>
+
+</body>
+</html>

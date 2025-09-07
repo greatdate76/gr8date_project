@@ -1,0 +1,227 @@
+:root{
+  --bg:#f7f8fb;
+  --panel:#fff;
+  --panel-alt:#f0f3f8;
+  --text:#101217;
+  --muted:#5b6270;
+  --border:#e6e6ef;
+}
+
+*{box-sizing:border-box}
+
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+}
+
+a{color:inherit}
+img{max-width:100%;display:block}
+.container{max-width:1200px;margin:0 auto;padding:0 14px}
+
+/* ======================
+   Sticky header framing
+   ====================== */
+.wrap > header{
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: #fff;
+  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+}
+
+/* Mobile: stack logo above icons, keep spacing tidy */
+@media (max-width:600px){
+  .wrap > header{
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+  }
+  .wrap > header .right{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:10px;
+  }
+}
+
+/* ======================
+   Icon buttons / chips
+   ====================== */
+.icon-btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#fff;
+  color:#111;
+  text-decoration:none;
+  cursor:pointer;
+  transition:.15s transform,.15s box-shadow;
+}
+.icon-btn:hover{ transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.06) }
+.material-icons{ font-size:22px; line-height:1 }
+.icon-rotate-90{ transform:rotate(90deg) }
+
+/* Optional: icon style used on profile_detail for ⎋ */
+.icon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:42px;
+  height:42px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:#fff;
+  text-decoration:none;
+  cursor:pointer;
+  transition:.15s transform,.15s box-shadow;
+}
+.icon:hover{ transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.06) }
+
+/* ======================
+   Modal (search / logout)
+   ====================== */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(2,6,23,.55);
+  z-index:9999;
+}
+.modal.open{ display:flex; }
+
+.sheet{
+  width:min(520px,92vw);
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:16px;
+  box-shadow:0 20px 60px rgba(0,0,0,.25);
+  overflow:hidden;
+}
+.sheet header{
+  padding:12px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+.sheet main{ padding:14px; }
+
+/* Scope modal button row so it doesn't affect page .actions */
+.modal .actions{
+  display:flex;
+  gap:8px;
+  justify-content:flex-end;
+  margin-top:12px;
+}
+.btn{
+  padding:10px 14px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:#fff;
+  cursor:pointer;
+}
+.btn.primary{
+  background:#111;
+  color:#fff;
+  border-color:#111;
+}
+
+/* ======================
+   FINAL, authoritative logo sizing
+   Works with <picture class="logo"> ... <img class="logo-img">
+   ====================== */
+.wrap > header .logo,
+.site-header .logo,
+.logo{
+  display:flex !important;
+  align-items:center !important;
+  max-height:48px !important; /* hard safety cap */
+}
+
+/* Hard-size the logo image so SVG dimensions can't push layout */
+.wrap > header .logo-img,
+.site-header .logo-img,
+.logo-img{
+  width:160px !important;       /* fixed width on desktop */
+  height:auto !important;        /* keep aspect ratio */
+  max-height:48px !important;    /* extra safety cap */
+  display:block !important;
+  max-width:none !important;     /* override global img{max-width:100%} */
+  flex:0 0 160px !important;     /* reserve space, don't stretch */
+}
+
+/* Header flex: logo takes only its content, icons get flexible space */
+.wrap > header .left{ flex:0 0 auto !important; }
+.wrap > header .right{ flex:1 1 auto !important; justify-content:flex-end !important; }
+
+/* Mobile: slightly smaller */
+@media (max-width:600px){
+  .wrap > header .logo-img,
+  .site-header .logo-img,
+  .logo-img{
+    width:130px !important;     /* fixed width on mobile */
+    max-height:40px !important;
+    flex:0 0 130px !important;
+  }
+
+  /* keep logo above icons and allow wrapping (defensive, in case inline styles differ) */
+  .wrap > header{
+    display:flex !important;
+    flex-direction:column !important;
+    align-items:center !important;
+    gap:8px !important;
+  }
+  .wrap > header .right{
+    display:flex !important;
+    flex-wrap:wrap !important;
+    justify-content:center !important;
+    gap:10px !important;
+  }
+}
+
+/* === FINAL CLAMP: force logo to a predictable size everywhere === */
+img.logo-img{
+  width:160px !important;      /* desktop */
+  height:auto !important;
+  max-width:none !important;   /* ignore global img{max-width:100%} */
+  display:block !important;
+}
+picture.logo{
+  display:inline-flex !important;
+  align-items:center !important;
+  width:auto !important;
+  max-width:none !important;
+}
+
+/* Desktop header flex: logo takes content; icons occupy remaining space */
+.wrap > header .left{ flex:0 0 auto !important; }
+.wrap > header .right{ flex:1 1 auto !important; justify-content:flex-end !important; }
+
+/* Mobile: logo above icons; icons wrap; smaller logo */
+@media (max-width:600px){
+  img.logo-img{ width:130px !important; }   /* mobile size */
+
+  .wrap > header{
+    display:flex !important;
+    flex-direction:column !important;  /* logo on top */
+    align-items:center !important;
+    gap:8px !important;
+  }
+  .wrap > header .right{
+    display:flex !important;
+    flex-wrap:wrap !important;         /* icons can wrap */
+    justify-content:center !important; /* centered under logo */
+    gap:10px !important;
+  }
+}
+
