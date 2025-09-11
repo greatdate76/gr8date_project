@@ -1,0 +1,16 @@
+{% load static %}
+{# Defaults #}
+{% if clickable is not defined %}{% with True as clickable %}{% endwith %}{% endif %}
+{% if href is not defined %}{% with 'pages:dashboard' as href %}{% endwith %}{% endif %}
+{% if src is not defined %}{% with 'images/logo.svg' as src %}{% endwith %}{% endif %}
+
+{% if clickable %}
+  <a class="gd-logo" href="{% url href %}" aria-label="GR8DATE — Dashboard">
+    <img src="{% static src %}" alt="GR8DATE" width="120" height="28" style="display:block;height:28px;">
+  </a>
+{% else %}
+  <span class="gd-logo" aria-label="GR8DATE">
+    <img src="{% static src %}" alt="GR8DATE" width="120" height="28" style="display:block;height:28px;">
+  </span>
+{% endif %}
+

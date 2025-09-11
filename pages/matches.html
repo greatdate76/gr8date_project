@@ -1,0 +1,12 @@
+@login_required
+def matches_page(request):
+    my_favs = Favorite.objects.filter(user=request.user).select_related("target").order_by("-created_at")
+    fav_me  = Favorite.objects.filter(target=request.user).select_related("user").order_by("-created_at")
+    my_blocks = Block.objects.filter(blocker=request.user).select_related("blocked").order_by("-created_at")
+
+    return render(request, "pages/matches.html", {
+        "my_favs": my_favs,
+        "fav_me": fav_me,
+        "my_blocks": my_blocks,
+    })
+

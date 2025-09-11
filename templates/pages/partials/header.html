@@ -1,14 +1,15 @@
 {% load static %}
+{% now 'U' as cachebust %}
 <header class="site-header">
   <div class="container nav-container">
     <a href="{% url 'pages:index' %}">
-      <img alt="GR8Date Logo" class="logo-img logo-desktop" src="{% static 'images/gr8date-logo-desktop.svg' %}">
-      <img alt="GR8Date Logo" class="logo-img logo-mobile" src="{% static 'images/gr8date-logo-mobile.svg' %}">
+      <img
+        alt="GR8Date Logo"
+        class="logo-img"
+        src="{% static 'images/gr8date-logo-desktop.svg' %}?v={{ cachebust }}"
+        width="160"
+        onerror="this.replaceWith(Object.assign(document.createElement('strong'),{textContent:'GR8DATE'}))">
     </a>
-    <nav class="site-nav">
-      <a href="{% url 'pages:login' %}">Login</a>
-      <a class="btn-primary" href="{% url 'pages:signup' %}">Join Free Now</a>
-    </nav>
   </div>
 </header>
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <title>Marketing Dashboard</title>
@@ -7,9 +7,21 @@
 </head>
 <body style="font-family:Arial, sans-serif; margin:0; padding:24px;">
   <h1>Marketing Dashboard</h1>
-  <div style="display:flex;gap:24px;">
-    <div><div style="font-size:12px;color:#666;">Total Profiles</div><div style="font-size:28px;font-weight:700;">{{ total }}</div></div>
-    <div><div style="font-size:12px;color:#666;">With Images</div><div style="font-size:28px;font-weight:700;">{{ with_images }}</div></div>
+
+  <div style="display:flex; gap:24px;">
+    <div>
+      <div style="font-size:12px; color:#666;">Total Profiles</div>
+      <div style="font-size:28px; font-weight:700;">{{ total_profiles|default:"—" }}</div>
+    </div>
+
+    <div>
+      <div style="font-size:12px; color:#666;">With Images</div>
+      <div style="font-size:28px; font-weight:700;">{{ with_images|default:"—" }}</div>
+    </div>
   </div>
+
+  {# Step 6B: limited/preview popup + helpers (only activates when limited_mode=True) #}
+  {% include "pages/_limited_cta.html" %}
 </body>
 </html>
+

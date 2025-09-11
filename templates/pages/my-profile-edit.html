@@ -1,0 +1,135 @@
+{% extends 'base.html' %}  <!-- Extend base.html to inherit layout -->
+{% block title %}Edit Profile – GR8Date{% endblock %}
+{% load static %}  <!-- Load static files -->
+
+{% block content %}
+  <!-- Add CSS Link for Base Styles -->
+  <link href="{% static 'css/base.css' %}?v={{ cachebust }}" rel="stylesheet">
+  <!-- Ensure Material Icons Font is Loaded -->
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+  <!-- Header from profile.html -->
+  <header>
+    <div class="wrap">
+      <div class="left">
+        <!-- Left section for logo or navigation (if needed) -->
+      </div>
+      <div class="right">
+        <span class="material-icons icon-btn">account_circle</span>
+        <span class="material-icons icon-btn">notifications</span>
+        <span class="material-icons icon-btn">settings</span>
+      </div>
+    </div>
+  </header>
+
+  <div class="wrap">
+    <!-- Profile Edit Form -->
+    <form method="post" enctype="multipart/form-data" action="{% url 'pages:my_profile_edit' %}" id="profile-creation-form">
+      {% csrf_token %}
+
+      <!-- Account Details Section -->
+      <div class="profile-section">
+        <div class="profile-section-header" onclick="toggleSection(this)">
+          <h3>Account Details</h3>
+          <span class="material-icons">add</span>
+        </div>
+        <div class="profile-section-content">
+          <div class="form-group">
+            <label for="display_name">Display Name</label>
+            <input type="text" id="display_name" name="display_name" value="{{ profile.display_name }}" required>
+          </div>
+          <div class="form-group">
+            <label for="bio">Bio</label>
+            <textarea id="bio" name="bio" required>{{ profile.bio }}</textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section for Profile Photos -->
+      <div class="profile-section">
+        <div class="profile-section-header" onclick="toggleSection(this)">
+          <h3>Profile Photos</h3>
+          <span class="material-icons">add</span>
+        </div>
+        <div class="profile-section-content">
+          <div class="photo-upload-grid">
+            {% for image in profile.images.all %}
+              <div class="profile-photo">
+                <img src="{{ image.url }}" alt="Profile Photo">
+              </div>
+            {% empty %}
+              <p>No photos uploaded yet.</p>
+            {% endfor %}
+            <div class="photo-upload-box" id="photo-upload-box-1">
+              <span class="material-icons">add</span>
+              <p>Add Photo</p>
+              <input type="file" name="profile_photo" accept="image/*">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Section for Private Photos -->
+      <div class="profile-section">
+        <div class="profile-section-header" onclick="toggleSection(this)">
+          <h3>Private Photos</h3>
+          <span class="material-icons">add</span>
+        </div>
+        <div class="profile-section-content">
+          <div class="photo-upload-grid">
+            {% for private_image in profile.private_images.all %}
+              <div class="profile-photo">
+                <img src="{{ private_image.url }}" alt="Private Photo">
+              </div>
+            {% empty %}
+              <p>No private photos uploaded yet.</p>
+            {% endfor %}
+            <div class="photo-upload-box" id="photo-upload-box-2">
+              <span class="material-icons">add</span>
+              <p>Add Photo</p>
+              <input type="file" name="private_photo" accept="image/*">
+            </div>
+          </div>
+          <p class="photo-upload-info">These photos will only be visible to users you approve.</p>
+        </div>
+      </div>
+
+      <!-- Additional Fields (example: location, tagline) -->
+      <div class="profile-section">
+        <div class="profile-section-header" onclick="toggleSection(this)">
+          <h3>Additional Details</h3>
+          <span class="material-icons">add</span>
+        </div>
+        <div class="profile-section-content">
+          <div class="form-group">
+            <label for="location">Location</label>
+            <input type="text" id="location" name="location" value="{{ profile.location }}">
+          </div>
+          <div class="form-group">
+            <label for="taglineInput">Your Tagline</label>
+            <input type="text" id="taglineInput" name="tagline" value="{{ profile.tagline }}">
+          </div>
+        </div>
+      </div>
+
+      <!-- Section: Save Button -->
+      <div class="form-group">
+        <button type="submit" class="save-profile-button">Save Changes</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Add the Toggle Section Script -->
+  <script>
+    function toggleSection(headerElement) {
+      headerElement.classList.toggle('expanded');
+      const content = headerElement.nextElementSibling;
+      if (content.style.display === "block") {
+        content.style.display = "none";
+      } else {
+        content.style.display = "block";
+      }
+    }
+  </script>
+{% endblock %}
+

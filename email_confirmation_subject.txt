@@ -1,0 +1,4 @@
+cat > templates/account/email/email_confirmation_subject.txt <<'EOF'
+Verify your email for GR8DATE
+EOF
+

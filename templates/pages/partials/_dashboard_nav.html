@@ -1,0 +1,33 @@
+{% load static %}
+<div class="left">
+  {% include "pages/partials/logo_noclick.html" %}
+</div>
+
+<div class="right">
+  <!-- U-turn (rotated 90°) -->
+  <a class="icon-btn" href="{% url 'pages:dashboard' %}?page=1" title="Dashboard start">
+    <img src="{% static 'images/icons/u-turn-90.png' %}" alt="" width="22" height="22">
+  </a>
+
+  <!-- Search -->
+  <button class="icon-btn" id="openSearch" type="button" title="Search">
+    <img src="{% static 'images/icons/search.png' %}" alt="" width="22" height="22">
+  </button>
+
+  {% if limited_mode %}
+    <a class="icon-btn" href="{% url 'pages:login' %}" title="Messages"><img src="{% static 'images/icons/mail.png' %}" alt="" width="22" height="22"></a>
+    <a class="icon-btn" href="{% url 'pages:login' %}" title="Matches"><img src="{% static 'images/icons/people.png' %}" alt="" width="22" height="22"></a>
+    <a class="icon-btn" href="{% url 'pages:login' %}" title="Hot Dates"><img src="{% static 'images/icons/flame.png' %}" alt="" width="22" height="22"></a>
+    <a class="icon-btn" href="{% url 'pages:login' %}" title="Edit Profile"><img src="{% static 'images/icons/person.png' %}" alt="" width="22" height="22"></a>
+  {% else %}
+    <a class="icon-btn" href="{% url 'pages:messages' %}" title="Messages"><img src="{% static 'images/icons/mail.png' %}" alt="" width="22" height="22"></a>
+    <a class="icon-btn" href="{% url 'pages:matches' %}" title="Matches"><img src="{% static 'images/icons/people.png' %}" alt="" width="22" height="22"></a>
+    <a class="icon-btn" href="{% url 'pages:hot_dates' %}" title="Hot Dates"><img src="{% static 'images/icons/flame.png' %}" alt="" width="22" height="22"></a>
+    <a class="icon-btn" href="{% url 'pages:my_profile_edit' %}" title="Edit Profile"><img src="{% static 'images/icons/person.png' %}" alt="" width="22" height="22"></a>
+  {% endif %}
+
+  <button class="icon-btn" type="button" data-logout-open title="Log Out">
+    <img src="{% static 'images/icons/logout.png' %}" alt="" width="22" height="22">
+  </button>
+</div>
+

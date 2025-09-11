@@ -1,0 +1,12 @@
+cat > templates/account/email/email_confirmation_message.txt <<'EOF'
+Hi,
+
+Thanks for signing up to GR8DATE. Please confirm your email to continue.
+
+Verify now: {{ activate_url }}
+
+If the button or link doesn’t work, copy and paste the URL above into your browser.
+
+— GR8DATE
+EOF
+

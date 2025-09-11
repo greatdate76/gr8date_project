@@ -18,8 +18,23 @@ class Profile(models.Model):
     created_at = models.DateTimeField(default=timezone.now)
     updated_at = models.DateTimeField(auto_now=True)
 
+    # --- Onboarding / approval flags ---
+    # Set is_complete=True when the user finishes your profile wizard.
+    # Set is_approved=True from admin when you approve/publish the profile.
+    is_complete = models.BooleanField(default=False)
+    is_approved = models.BooleanField(default=False)
+
+    # --- Notifications/UX state ---
+    # Used to turn OFF the flashing Hot Dates flame after the user views the page
+    last_seen_hotdate_at = models.DateTimeField(null=True, blank=True)
+
     def __str__(self):
         return f"{self.display_name or 'User'} (#{self.user_id})"
+
+    @property
+    def is_ready(self) -> bool:
+        """Profile is allowed through the app once complete AND approved."""
+        return self.is_complete and self.is_approved
 
     # helpers
     def public_images(self):
@@ -102,6 +117,52 @@ class ProfileImage(models.Model):
 
 
 # ----------------------------
+# Leads / Marketing
+# ----------------------------
+
+class MarketingLead(models.Model):
+    """
+    Preview visitors who signed up with email.
+    We keep them here until they fully convert (profile complete + approved).
+    """
+    email = models.EmailField(unique=True, db_index=True)
+    user_id = models.IntegerField(null=True, blank=True, db_index=True)
+    profile = models.ForeignKey(Profile, null=True, blank=True, on_delete=models.SET_NULL)
+
+    email_verified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+
+    converted_to_profile = models.BooleanField(default=False)
+    last_contacted = models.DateTimeField(null=True, blank=True)
+
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["email"]),
+            models.Index(fields=["user_id"]),
+        ]
+
+    def __str__(self):
+        status = "verified" if self.email_verified else "unverified"
+        return f"{self.email} ({status})"
+
+    @property
+    def has_profile(self) -> bool:
+        return bool(self.profile_id)
+
+    @property
+    def status(self) -> str:
+        if self.converted_to_profile:
+            return "Converted"
+        if self.email_verified:
+            return "Verified (Preview)"
+        return "Unverified"
+
+
+# ----------------------------
 # Blog models
 # ----------------------------
 
@@ -141,4 +202,123 @@ class BlogPost(models.Model):
 
     def __str__(self):
         return self.title
+
+
+# ----------------------------
+# Social / Messaging / Hot Dates (NEW)
+# ----------------------------
+
+class MessageThread(models.Model):
+    """
+    Conversation between exactly two users. Ordering is normalized (lowest id = user_a).
+    """
+    user_a = models.ForeignKey(User, on_delete=models.CASCADE, related_name="threads_as_a")
+    user_b = models.ForeignKey(User, on_delete=models.CASCADE, related_name="threads_as_b")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("user_a", "user_b")
+        indexes = [
+            models.Index(fields=["user_a", "user_b"]),
+            models.Index(fields=["updated_at"]),
+        ]
+
+    @staticmethod
+    def for_users(u1, u2):
+        a, b = sorted([u1.id, u2.id])
+        obj, _ = MessageThread.objects.get_or_create(user_a_id=a, user_b_id=b)
+        return obj
+
+    def other(self, user):
+        return self.user_b if self.user_a_id == user.id else self.user_a
+
+    def __str__(self):
+        return f"Thread<{self.user_a_id}-{self.user_b_id}>"
+
+
+class Message(models.Model):
+    thread = models.ForeignKey(MessageThread, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sent_messages")
+    body = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+        indexes = [
+            models.Index(fields=["thread", "id"]),
+            models.Index(fields=["thread", "created_at"]),
+        ]
+
+    @property
+    def recipient(self):
+        return self.thread.other(self.sender)
+
+    def __str__(self):
+        return f"Msg<{self.id}> from {self.sender_id}"
+
+
+class Favorite(models.Model):
+    """
+    Who you have favourited (user -> target).
+    """
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorites_made")   # who favourites
+    target = models.ForeignKey(User, on_delete=models.CASCADE, related_name="favorited_by")   # who is favourited
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("user", "target")
+        indexes = [
+            models.Index(fields=["user", "target"]),
+            models.Index(fields=["target", "created_at"]),
+        ]
+
+    def __str__(self):
+        return f"Fav<{self.user_id}->{self.target_id}>"
+
+
+class Block(models.Model):
+    """
+    Prevent contact between two users (blocker blocks blocked).
+    """
+    blocker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blocks_made")
+    blocked = models.ForeignKey(User, on_delete=models.CASCADE, related_name="blocked_by")
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("blocker", "blocked")
+        indexes = [
+            models.Index(fields=["blocker", "blocked"]),
+        ]
+
+    def __str__(self):
+        return f"Block<{self.blocker_id} x {self.blocked_id}>"
+
+
+class HotDate(models.Model):
+    """
+    A time-bound, broadcast-style 'date availability' post.
+    The flame icon flashes when there is an active HotDate the user hasn't seen since it was last updated.
+    """
+    creator = models.ForeignKey(User, on_delete=models.CASCADE, related_name="hot_dates")
+    title = models.CharField(max_length=120)
+    details = models.TextField(blank=True)
+    starts_at = models.DateTimeField()
+    expires_at = models.DateTimeField()
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        indexes = [
+            models.Index(fields=["starts_at", "expires_at"]),
+            models.Index(fields=["updated_at"]),
+        ]
+
+    @property
+    def is_active(self):
+        now = timezone.now()
+        return self.starts_at <= now < self.expires_at
+
+    def __str__(self):
+        return f"HotDate<{self.title}>"
 

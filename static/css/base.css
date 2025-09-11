@@ -1,282 +1,299 @@
-:root{
-  --bg:#f7f8fb;
-  --panel:#fff;
-  --panel-alt:#f0f3f8;
-  --text:#101217;
-  --muted:#5b6270;
-  --border:#e6e6ef;
+/* Global styles */
+body, html {
+  margin:0; padding: 0;
+  height: 100%;
 }
 
-*{box-sizing:border-box}
-
-html,body{
-  margin:0;
-  background:var(--bg);
-  color:var(--text);
-  font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
+body {
+    font-family: Helvetica Neue, Helvetica, Arial;
+    font-size: 14px;
+    color:#333;
+}
+.small { font-size: 12px; }
+*, *:after, *:before {
+  -webkit-box-sizing:border-box;
+     -moz-box-sizing:border-box;
+          box-sizing:border-box;
+}
+h1 { font-size: 20px; margin: 0;}
+h2 { font-size: 14px; }
+pre {
+    font: 12px/1.4 Consolas, "Liberation Mono", Menlo, Courier, monospace;
+    margin: 0;
+    padding: 0;
+    -moz-tab-size: 2;
+    -o-tab-size:  2;
+    tab-size: 2;
+}
+a { color:#0074D9; text-decoration:none; }
+a:hover { text-decoration:underline; }
+.strong { font-weight: bold; }
+.space-top1 { padding: 10px 0 0 0; }
+.pad2y { padding: 20px 0; }
+.pad1y { padding: 10px 0; }
+.pad2x { padding: 0 20px; }
+.pad2 { padding: 20px; }
+.pad1 { padding: 10px; }
+.space-left2 { padding-left:55px; }
+.space-right2 { padding-right:20px; }
+.center { text-align:center; }
+.clearfix { display:block; }
+.clearfix:after {
+  content:'';
+  display:block;
+  height:0;
+  clear:both;
+  visibility:hidden;
+}
+.fl { float: left; }
+@media only screen and (max-width:640px) {
+  .col3 { width:100%; max-width:100%; }
+  .hide-mobile { display:none!important; }
 }
 
-a{color:inherit}
-img{max-width:100%;display:block}
-.container{max-width:1200px;margin:0 auto;padding:0 14px}
+.quiet {
+  color: #7f7f7f;
+  color: rgba(0,0,0,0.5);
+}
+.quiet a { opacity: 0.7; }
 
-/* ======================
-   Sticky header framing
-   ====================== */
-.wrap > header{
-  position: sticky;
-  top: 0;
-  z-index: 1000;
+.fraction {
+  font-family: Consolas, 'Liberation Mono', Menlo, Courier, monospace;
+  font-size: 10px;
+  color: #555;
+  background: #E8E8E8;
+  padding: 4px 5px;
+  border-radius: 3px;
+  vertical-align: middle;
+}
+
+div.path a:link, div.path a:visited { color: #333; }
+table.coverage {
+  border-collapse: collapse;
+  margin: 10px 0 0 0;
+  padding: 0;
+}
+
+table.coverage td {
+  margin: 0;
+  padding: 0;
+  vertical-align: top;
+}
+table.coverage td.line-count {
+    text-align: right;
+    padding: 0 5px 0 20px;
+}
+table.coverage td.line-coverage {
+    text-align: right;
+    padding-right: 10px;
+    min-width:20px;
+}
+
+table.coverage td span.cline-any {
+    display: inline-block;
+    padding: 0 5px;
+    width: 100%;
+}
+.missing-if-branch {
+    display: inline-block;
+    margin-right: 5px;
+    border-radius: 3px;
+    position: relative;
+    padding: 0 4px;
+    background: #333;
+    color: yellow;
+}
+
+.skip-if-branch {
+    display: none;
+    margin-right: 10px;
+    position: relative;
+    padding: 0 4px;
+    background: #ccc;
+    color: white;
+}
+.missing-if-branch .typ, .skip-if-branch .typ {
+    color: inherit !important;
+}
+.coverage-summary {
+  border-collapse: collapse;
+  width: 100%;
+}
+.coverage-summary tr { border-bottom: 1px solid #bbb; }
+.keyline-all { border: 1px solid #ddd; }
+.coverage-summary td, .coverage-summary th { padding: 10px; }
+.coverage-summary tbody { border: 1px solid #bbb; }
+.coverage-summary td { border-right: 1px solid #bbb; }
+.coverage-summary td:last-child { border-right: none; }
+.coverage-summary th {
+  text-align: left;
+  font-weight: normal;
+  white-space: nowrap;
+}
+.coverage-summary th.file { border-right: none !important; }
+.coverage-summary th.pct { }
+.coverage-summary th.pic,
+.coverage-summary th.abs,
+.coverage-summary td.pct,
+.coverage-summary td.abs { text-align: right; }
+.coverage-summary td.file { white-space: nowrap;  }
+.coverage-summary td.pic { min-width: 120px !important;  }
+.coverage-summary tfoot td { }
+
+.coverage-summary .sorter {
+    height: 10px;
+    width: 7px;
+    display: inline-block;
+    margin-left: 0.5em;
+    background: url(sort-arrow-sprite.png) no-repeat scroll 0 0 transparent;
+}
+.coverage-summary .sorted .sorter {
+    background-position: 0 -20px;
+}
+.coverage-summary .sorted-desc .sorter {
+    background-position: 0 -10px;
+}
+.status-line {  height: 10px; }
+/* yellow */
+.cbranch-no { background: yellow !important; color: #111; }
+/* dark red */
+.red.solid, .status-line.low, .low .cover-fill { background:#C21F39 }
+.low .chart { border:1px solid #C21F39 }
+.highlighted,
+.highlighted .cstat-no, .highlighted .fstat-no, .highlighted .cbranch-no{
+  background: #C21F39 !important;
+}
+/* medium red */
+.cstat-no, .fstat-no, .cbranch-no, .cbranch-no { background:#F6C6CE }
+/* light red */
+.low, .cline-no { background:#FCE1E5 }
+/* light green */
+.high, .cline-yes { background:rgb(230,245,208) }
+/* medium green */
+.cstat-yes { background:rgb(161,215,106) }
+/* dark green */
+.status-line.high, .high .cover-fill { background:rgb(77,146,33) }
+.high .chart { border:1px solid rgb(77,146,33) }
+/* dark yellow (gold) */
+.status-line.medium, .medium .cover-fill { background: #f9cd0b; }
+.medium .chart { border:1px solid #f9cd0b; }
+/* light yellow */
+.medium { background: #fff4c2; }
+
+.cstat-skip { background: #ddd; color: #111; }
+.fstat-skip { background: #ddd; color: #111 !important; }
+.cbranch-skip { background: #ddd !important; color: #111; }
+
+span.cline-neutral { background: #eaeaea; }
+
+.coverage-summary td.empty {
+    opacity: .5;
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1;
+    color: #888;
+}
+
+.cover-fill, .cover-empty {
+  display:inline-block;
+  height: 12px;
+}
+.chart {
+  line-height: 0;
+}
+.cover-empty {
+    background: white;
+}
+.cover-full {
+    border-right: none !important;
+}
+pre.prettyprint {
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+}
+.com { color: #999 !important; }
+.ignore-none { color: #999; font-weight: normal; }
+
+.wrapper {
+  min-height: 100%;
+  height: auto !important;
+  height: 100%;
+  margin: 0 auto -48px;
+}
+.footer, .push {
+  height: 48px;
+}
+
+/* ------------------ Search Modal Styles ------------------ */
+
+/* Search modal styles */
+.modal {
+  position: fixed;
+  inset: 0;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 10000;
+}
+
+.modal.open {
+  display: flex;
+}
+
+/* Styling for the modal content */
+.sheet {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  width: 80%;
+  max-width: 600px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+/* Close button */
+#closeSearch {
   background: #fff;
-  border-bottom: 1px solid var(--border);
-  padding: 8px 0;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-/* Mobile: stack logo above icons, keep spacing tidy */
-@media (max-width:600px){
-  .wrap > header{
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    align-items: center;
-  }
-  .wrap > header .right{
-    display:flex;
-    flex-wrap:wrap;
-    justify-content:center;
-    gap:10px;
-  }
+#closeSearch:hover {
+  background: #f0f0f0;
 }
 
-/* ======================
-   Icon buttons / chips
-   ====================== */
-.icon-btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:42px;
-  height:42px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:#fff;
-  color:#111;
-  text-decoration:none;
-  cursor:pointer;
-  transition:.15s transform,.15s box-shadow;
-}
-.icon-btn:hover{ transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.06) }
-.material-icons{ font-size:22px; line-height:1 }
-.icon-rotate-90{ transform:rotate(90deg) }
-
-/* Optional: icon style used on profile_detail for ⎋ */
-.icon{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  width:42px;
-  height:42px;
-  border-radius:12px;
-  border:1px solid var(--border);
-  background:#fff;
-  text-decoration:none;
-  cursor:pointer;
-  transition:.15s transform,.15s box-shadow;
-}
-.icon:hover{ transform:translateY(-1px); box-shadow:0 6px 18px rgba(0,0,0,.06) }
-
-/* ======================
-   Modal (search / logout)
-   ====================== */
-.modal{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(2,6,23,.55);
-  z-index:9999;
-}
-.modal.open{ display:flex; }
-
-.sheet{
-  width:min(520px,92vw);
-  background:#fff;
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:0 20px 60px rgba(0,0,0,.25);
-  overflow:hidden;
-}
-.sheet header{
-  padding:12px 14px;
-  border-bottom:1px solid var(--border);
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-}
-.sheet main{ padding:14px; }
-
-/* Scope modal button row so it doesn't affect page .actions */
-.modal .actions{
-  display:flex;
-  gap:8px;
-  justify-content:flex-end;
-  margin-top:12px;
-}
-.btn{
-  padding:10px 14px;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:#fff;
-  cursor:pointer;
-}
-.btn.primary{
-  background:#111;
-  color:#fff;
-  border-color:#111;
+/* Ensure that form inputs are styled */
+input,
+select,
+textarea {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  margin: 10px 0;
 }
 
-/* ======================
-   FINAL, authoritative logo sizing
-   Works with <picture class="logo"> ... <img class="logo-img">
-   ====================== */
-.wrap > header .logo,
-.site-header .logo,
-.logo{
-  display:flex !important;
-  align-items:center !important;
-  max-height:48px !important; /* hard safety cap */
+button {
+  background-color: #e0007a;
+  color: white;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
-/* Hard-size the logo image so SVG dimensions can't push layout */
-.wrap > header .logo-img,
-.site-header .logo-img,
-.logo-img{
-  width:160px !important;       /* fixed width on desktop */
-  height:auto !important;        /* keep aspect ratio */
-  max-height:48px !important;    /* extra safety cap */
-  display:block !important;
-  max-width:none !important;     /* override global img{max-width:100%} */
-  flex:0 0 160px !important;     /* reserve space, don't stretch */
+button:hover {
+  background-color: #c8006b;
 }
 
-/* Header flex: logo takes only its content, icons get flexible space */
-.wrap > header .left{ flex:0 0 auto !important; }
-.wrap > header .right{ flex:1 1 auto !important; justify-content:flex-end !important; }
-
-/* Mobile: slightly smaller */
-@media (max-width:600px){
-  .wrap > header .logo-img,
-  .site-header .logo-img,
-  .logo-img{
-    width:130px !important;     /* fixed width on mobile */
-    max-height:40px !important;
-    flex:0 0 130px !important;
-  }
-
-  /* keep logo above icons and allow wrapping (defensive, in case inline styles differ) */
-  .wrap > header{
-    display:flex !important;
-    flex-direction:column !important;
-    align-items:center !important;
-    gap:8px !important;
-  }
-  .wrap > header .right{
-    display:flex !important;
-    flex-wrap:wrap !important;
-    justify-content:center !important;
-    gap:10px !important;
+/* Additional responsiveness for mobile devices */
+@media (max-width: 600px) {
+  .sheet {
+    width: 95%;
   }
 }
 
-/* === FINAL CLAMP: force logo to a predictable size everywhere === */
-img.logo-img{
-  width:160px !important;      /* desktop */
-  height:auto !important;
-  max-width:none !important;   /* ignore global img{max-width:100%} */
-  display:block !important;
-}
-picture.logo{
-  display:inline-flex !important;
-  align-items:center !important;
-  width:auto !important;
-  max-width:none !important;
-}
-
-/* Desktop header flex: logo takes content; icons occupy remaining space */
-.wrap > header .left{ flex:0 0 auto !important; }
-.wrap > header .right{ flex:1 1 auto !important; justify-content:flex-end !important; }
-
-/* Mobile: logo above icons; icons wrap; smaller logo */
-@media (max-width:600px){
-  img.logo-img{ width:130px !important; }   /* mobile size */
-
-  .wrap > header{
-    display:flex !important;
-    flex-direction:column !important;  /* logo on top */
-    align-items:center !important;
-    gap:8px !important;
-  }
-  .wrap > header .right{
-    display:flex !important;
-    flex-wrap:wrap !important;         /* icons can wrap */
-    justify-content:center !important; /* centered under logo */
-    gap:10px !important;
-  }
-}
-
-
-/* === GR8DATE Lightbox (scoped) === */
-html.gd-lightbox-lock { overflow: hidden; }
-
-.gd-lightbox-overlay {
-  position: fixed; inset: 0; z-index: 9999;
-  background: rgba(10, 12, 17, 0.92);
-  display: none; align-items: center; justify-content: center;
-  padding: 24px;
-}
-.gd-lightbox-overlay.is-open { display: flex; }
-
-.gd-lightbox-stage {
-  position: relative; max-width: min(92vw, 1400px); max-height: 86vh;
-  display: flex; flex-direction: column; align-items: center;
-  gap: 12px;
-}
-.gd-lightbox-img {
-  max-width: 100%; max-height: 80vh; width: auto; height: auto;
-  border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,.35);
-}
-.gd-lightbox-caption {
-  color: #eaeef7; font-size: 14px; line-height: 1.4;
-  text-align: center; max-width: 80ch; opacity: .9;
-}
-
-/* Controls */
-.gd-lightbox-close, .gd-lightbox-prev, .gd-lightbox-next {
-  position: absolute; border: 0; background: rgba(255,255,255,0.08); color: #fff;
-  width: 44px; height: 44px; border-radius: 50%;
-  display: grid; place-items: center; cursor: pointer;
-  backdrop-filter: blur(4px);
-}
-.gd-lightbox-close { top: 16px; right: 16px; font-size: 28px; line-height: 1; }
-.gd-lightbox-prev  { left: 16px; top: 50%; transform: translateY(-50%); font-size: 22px; }
-.gd-lightbox-next  { right: 16px; top: 50%; transform: translateY(-50%); font-size: 22px; }
-
-.gd-lightbox-close:hover,
-.gd-lightbox-prev:hover,
-.gd-lightbox-next:hover {
-  background: rgba(255,255,255,0.18);
-}
-@media (hover: none) {
-  .gd-lightbox-close, .gd-lightbox-prev, .gd-lightbox-next { background: rgba(255,255,255,0.14); }
-}
-
-/* Accessibility: reduce motion respects */
-@media (prefers-reduced-motion: no-preference) {
-  .gd-lightbox-overlay.is-open .gd-lightbox-img { animation: gd-fade-in .18s ease-out; }
-}
-@keyframes gd-fade-in {
-  from { opacity: 0; transform: translateY(2px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
-/* === End GR8DATE Lightbox === */

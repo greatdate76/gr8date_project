@@ -1,0 +1,76 @@
+{# templates/pages/_limited_cta.html #}
+{% if limited_mode %}
+<style>
+  /* Blur helper for additional/private tiles (keeps layout identical) */
+  .gd-blur { filter: blur(8px); pointer-events: none; }
+
+  /* Disable pointer + dim disabled icons/buttons without moving them */
+  .gd-disabled { pointer-events: none; opacity: .5; }
+
+  /* Simple centered popup */
+  .gd-modal-backdrop {
+    position: fixed; inset: 0; background: rgba(0,0,0,.45);
+    display: none; align-items: center; justify-content: center; z-index: 9999;
+  }
+  .gd-modal {
+    max-width: 520px; width: calc(100% - 2rem);
+    background: #fff; border-radius: 12px; box-shadow: 0 10px 35px rgba(0,0,0,.25);
+    padding: 1.25rem 1.25rem 1rem;
+    font-family: Arial, sans-serif; color: #333;
+  }
+  .gd-modal h3 { margin: .25rem 0 .75rem; font-size: 1.25rem; }
+  .gd-modal p { margin: 0 0 1rem; color: #666; }
+  .gd-modal .gd-actions { display: flex; gap: .5rem; justify-content: flex-end; }
+  .gd-btn {
+    border: 0; border-radius: 999px; padding: .6rem 1rem; cursor: pointer; font-weight: 700;
+  }
+  .gd-btn.primary { background: #ff3366; color: #fff; }
+  .gd-btn.ghost   { background: transparent; color: #ff3366; }
+</style>
+
+<div id="gdLimitedBackdrop" class="gd-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="gdLimitedTitle">
+  <div class="gd-modal">
+    <h3 id="gdLimitedTitle">Finish your profile to unlock everything</h3>
+    <p>You’re viewing a limited preview. Complete your profile to enable messaging, favourites, and private photos.</p>
+    <div class="gd-actions">
+      <button type="button" class="gd-btn ghost" data-gd-close>Keep browsing</button>
+      <a class="gd-btn primary" href="{% url 'pages:my_profile_edit' %}">Complete profile</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    // Show/hide modal
+    const backdrop = document.getElementById('gdLimitedBackdrop');
+    function openModal(){ backdrop.style.display = 'flex'; }
+    function closeModal(){ backdrop.style.display = 'none'; }
+    document.addEventListener('click', function(e){
+      if(e.target && e.target.hasAttribute('data-gd-close')) closeModal();
+      if(e.target === backdrop) closeModal();
+    });
+
+    // Any element marked with .gd-trigger will show the modal instead of acting
+    document.addEventListener('click', function(e){
+      const t = e.target.closest('.gd-trigger');
+      if(!t) return;
+      e.preventDefault();
+      e.stopPropagation();
+      openModal();
+    }, true);
+
+    // Helper to mark obvious controls as triggers if your HTML has these classes/ids.
+    // Non-destructive: if selectors don’t exist, nothing breaks.
+    const markAsTriggers = (selectors) => {
+      selectors.forEach(sel => document.querySelectorAll(sel).forEach(el => el.classList.add('gd-trigger')));
+    };
+    // Buttons/links we want to deaden in preview:
+    markAsTriggers([
+      '.btn-favorite', '.btn-message', '.btn-block',
+      '.btn-request-private', '.btn-request-photos',
+      '.icon-favorite', '.icon-message', '.icon-block'
+    ]);
+  })();
+</script>
+{% endif %}
+

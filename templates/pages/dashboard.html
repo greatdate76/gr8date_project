@@ -1,291 +1,69 @@
+{% extends "base.html" %}
 {% load static %}
 {% now 'U' as cachebust %}
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <title>Dashboard • GR8DATE</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-  <!-- Always fetch the latest CSS -->
-  <link href="{% static 'css/base.css' %}?v={{ cachebust }}" rel="stylesheet">
+{% block title %}Dashboard • GR8DATE{% endblock %}
 
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+{% block content %}
+<div class="wrap">
+  <section class="hero"><h1>Discover</h1></section>
 
-  <style>
-    :root {
-      --bg:#f7f8fb; --panel:#fff; --panel-alt:#f0f3f8; --text:#101217;
-      --muted:#5b6270; --border:#e6e6ef;
-    }
-
-    html,body {
-      margin:0;
-      background:var(--bg);
-      color:var(--text);
-      font-family:system-ui,-apple-system,Segoe UI,Roboto,Inter,Arial,sans-serif;
-    }
-
-    .wrap{max-width:1200px;margin:20px auto;padding:0 14px}
-
-    /* Dashboard-specific header spacing (no logo rules here) */
-    header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
-
-    .left,.right{display:flex;gap:10px;align-items:center}
-
-    .icon-btn{
-      display:inline-flex;align-items:center;justify-content:center;
-      width:42px;height:42px;border-radius:12px;border:1px solid var(--border);
-      background:#fff;color:#111;text-decoration:none;cursor:pointer;
-      transition:.15s transform,.15s box-shadow;
-    }
-    .icon-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(0,0,0,.06)}
-    .material-icons{font-size:22px;line-height:1}
-    .icon-rotate-90{transform:rotate(90deg)}
-
-    .hero{
-      background:linear-gradient(180deg,var(--panel),var(--panel-alt));
-      border:1px solid var(--border);
-      padding:14px;
-      border-radius:16px;
-      margin-bottom:14px;
-    }
-    h1{margin:8px 0 14px}
-
-    /* Grid 3×4 desktop, responsive down */
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
-    @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
-    @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:540px){.grid{grid-template-columns:1fr}}
-
-    .card{
-      background:#fff;border:1px solid var(--border);border-radius:16px;
-      overflow:hidden;display:flex;flex-direction:column;align-items:stretch;
-      transition:transform .15s, box-shadow .15s;
-    }
-    .card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.07)}
-
-    .avatar-wrap{
-      width:100%;aspect-ratio:4/5;border-radius:16px;
-      overflow:hidden;border:1px solid #e6e6ef;background:#eef2f7;
-    }
-    .thumb{width:100%;height:100%;object-fit:cover;display:block}
-
-    .body{padding:10px 12px}
-    .meta{color:var(--muted);font-size:.95rem}
-
-    .pagination{
-      display:flex;gap:10px;justify-content:center;align-items:center;margin:18px 0
-    }
-    .pagination a,.pagination span{
-      padding:8px 12px;border:1px solid var(--border);border-radius:10px;
-      background:#fff;text-decoration:none;color:#111;
-    }
-    .pagination .current{background:#111;color:#fff;border-color:#111}
-
-    /* Modal */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:rgba(2,6,23,.55);z-index:9999}
-    .modal.open{display:flex}
-    .sheet{
-      width:min(720px,92vw);background:#fff;border:1px solid var(--border);
-      border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.25);overflow:hidden
-    }
-    .sheet header{
-      padding:12px 14px;border-bottom:1px solid var(--border);
-      display:flex;justify-content:space-between;align-items:center
-    }
-    .sheet main{padding:14px}
-    .row{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
-    label{font-size:.9rem;color:#5b6270;display:block;margin-bottom:6px}
-    input,select{width:100%;padding:10px;border:1px solid var(--border);border-radius:10px;background:#fff}
-    .actions{display:flex;gap:8px;justify-content:flex-end;margin-top:12px}
-    .btn{padding:10px 14px;border-radius:10px;border:1px solid var(--border);background:#fff;cursor:pointer}
-    .btn.primary{background:#111;color:#fff;border-color:#111}
-  </style>
-</head>
-<body>
-  <main class="wrap">
-    <header>
-      <div class="left">
-        {% include "pages/partials/logo_noclick.html" %}
-      </div>
-      <div class="right">
-        <!-- U-turn rotated, before Search -->
-        <a class="icon-btn" href="{% url 'pages:dashboard' %}?page=1" title="Dashboard start" aria-label="Dashboard start">
-          <span class="material-icons icon-rotate-90">u_turn_left</span>
-        </a>
-
-        <!-- Search opens modal -->
-        <button class="icon-btn" id="openSearch" type="button" title="Search" aria-label="Search">
-          <span class="material-icons">search</span>
-        </button>
-
-        <a class="icon-btn" href="{% url 'pages:messages' %}" title="Messages" aria-label="Messages"><span class="material-icons">mail</span></a>
-
-        <!-- Matches stub -->
-        <button class="icon-btn" type="button" title="Matches (coming soon)" aria-label="Matches">
-          <span class="material-icons">people</span>
-        </button>
-
-        <a class="icon-btn" href="{% url 'pages:hot_dates' %}" title="Hot Dates" aria-label="Hot Dates"><span class="material-icons">whatshot</span></a>
-        <a class="icon-btn" href="{% url 'pages:my_profile_edit' %}" title="Edit Profile" aria-label="Edit Profile"><span class="material-icons">person</span></a>
-
-        <!-- CHANGED: logout now opens modal instead of navigating -->
-        <button class="icon-btn" type="button" data-logout-open title="Log Out" aria-label="Log out">
-          <span class="material-icons">logout</span>
-        </button>
-      </div>
-    </header>
-
-    <section class="hero">
-      <h1>Discover</h1>
-    </section>
-
-    <section class="grid">
-      {% for p in page_obj %}
-        <a class="card" href="{% url 'pages:profile_detail' p.pk %}">
-          <div class="avatar-wrap">
-            {% if p.primary_image %}
-              <img class="thumb" src="{{ p.primary_image.url }}" alt="{{ p.display_name }}">
-            {% else %}
-              {% with first=p.images.first %}
-                {% if first and first.image %}
-                  <img class="thumb" src="{{ first.image.url }}" alt="{{ p.display_name }}">
-                {% else %}
-                  <img class="thumb" src="{% static 'images/placeholders/profile-4x5.png' %}" alt="{{ p.display_name }}">
-                {% endif %}
-              {% endwith %}
-            {% endif %}
-          </div>
-          <div class="body">
-            <div style="display:flex;justify-content:space-between;align-items:center">
-              <strong>{{ p.display_name }}</strong>
-              {% if p.age %}<span class="meta">{{ p.age }}</span>{% endif %}
-            </div>
-            <div class="meta">{% if p.location %}{{ p.location }}{% endif %}</div>
-          </div>
-        </a>
-      {% empty %}
-        <p>No profiles found.</p>
-      {% endfor %}
-    </section>
-
-    {% if page_obj.paginator.num_pages > 1 %}
-      <nav class="pagination" aria-label="Pagination">
-        {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}">« Prev</a>
-        {% endif %}
-        <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
-        {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}">Next »</a>
-        {% endif %}
-      </nav>
-    {% endif %}
-  </main>
-
-  <!-- Search Modal -->
-  <div class="modal" id="searchModal" aria-hidden="true">
-    <div class="sheet">
-      <header>
-        <strong>Search Profiles</strong>
-        <button class="icon-btn" id="closeSearch" type="button" title="Close"><span class="material-icons">close</span></button>
-      </header>
-      <main>
-        <form method="get" action="{% url 'pages:dashboard' %}">
-          <div class="row">
-            <div>
-              <label>Keyword</label>
-              <input name="q" value="{{ q|default_if_none:'' }}">
-            </div>
-            <div>
-              <label>Location</label>
-              <input name="location" value="{{ search_params.location|default_if_none:'' }}">
-            </div>
-          </div>
-          <div class="row" style="margin-top:12px">
-            <div>
-              <label>Age Min</label>
-              <input type="number" name="age_min" value="{{ search_params.age_min }}">
-            </div>
-            <div>
-              <label>Age Max</label>
-              <input type="number" name="age_max" value="{{ search_params.age_max }}">
-            </div>
-          </div>
-          {% if user.is_superuser %}
-          <div class="row" style="margin-top:12px">
-            <div>
-              <label>Gender (superuser only)</label>
-              <select name="gender">
-                <option value="">Any</option>
-                <option value="Female" {% if search_params.gender == 'Female' %}selected{% endif %}>Female</option>
-                <option value="Male" {% if search_params.gender == 'Male' %}selected{% endif %}>Male</option>
-                <option value="Other" {% if search_params.gender == 'Other' %}selected{% endif %}>Other</option>
-              </select>
-            </div>
-          </div>
+  <section class="grid">
+    {% for p in page_obj %}
+      <a class="card" href="{% url 'pages:profile_detail' p.pk %}">
+        <div class="avatar-wrap">
+          {% if p.primary_image %}
+            <img class="thumb" src="{{ p.primary_image.url }}" alt="{{ p.display_name }}">
+          {% else %}
+            {% with first=p.images.first %}
+              {% if first and first.image %}
+                <img class="thumb" src="{{ first.image.url }}" alt="{{ p.display_name }}">
+              {% else %}
+                <img class="thumb" src="{% static 'images/placeholders/profile-4x5.png' %}" alt="{{ p.display_name }}">
+              {% endif %}
+            {% endwith %}
           {% endif %}
-          <div class="actions">
-            <a class="btn" href="{% url 'pages:dashboard' %}">Reset</a>
-            <button class="btn primary" type="submit">Search</button>
+        </div>
+        <div class="body">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <strong>{{ p.display_name }}</strong>
+            {% if p.age %}<span class="meta">{{ p.age }}</span>{% endif %}
           </div>
-        </form>
-      </main>
-    </div>
-  </div>
+          <div class="meta">{% if p.location %}{{ p.location }}{% endif %}</div>
+        </div>
+      </a>
+    {% empty %}
+      <p>No profiles found.</p>
+    {% endfor %}
+  </section>
 
-  <!-- ADD: Logout Modal (reusable partial) -->
-  {% include "pages/partials/logout_modal.html" %}
+  {% if page_obj.paginator.num_pages > 1 %}
+    <nav class="pagination" aria-label="Pagination">
+      {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">« Prev</a>{% endif %}
+      <span class="current">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Next »</a>{% endif %}
+    </nav>
+  {% endif %}
+</div>
 
-  <script>
-    const modal = document.getElementById('searchModal');
-    const openBtn = document.getElementById('openSearch');
-    const closeBtn = document.getElementById('closeSearch');
-    if (openBtn) openBtn.addEventListener('click', ()=>{ modal.classList.add('open'); modal.setAttribute('aria-hidden','false'); });
-    if (closeBtn) closeBtn.addEventListener('click', ()=>{ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); });
-    modal?.addEventListener('click', (e)=>{ if(e.target===modal){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }});
-    document.addEventListener('keydown', (e)=>{ if(e.key==='Escape' && modal.classList.contains('open')){ modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); }});
-  </script>
-  <script>
-  (function () {
-    // Save the current dashboard state (path, query, scroll)
-    function currentState() {
-      const qs = Object.fromEntries(new URLSearchParams(location.search));
-      return { path: location.pathname, qs, scroll: window.scrollY };
-    }
-
-    // Persist state frequently so Back returns to the same scroll
-    function saveState() {
-      try { sessionStorage.setItem('gd_dash_state', JSON.stringify(currentState())); } catch (_) {}
-    }
-    saveState();
-    window.addEventListener('scroll', () => { saveState(); }, { passive: true });
-    window.addEventListener('beforeunload', saveState);
-
-    // Build the list of profile links on the current page (for Prev/Next)
-    const cards = Array.from(document.querySelectorAll('.grid .card[href]'));
-    const links = cards
-      .map(a => new URL(a.getAttribute('href'), window.location.origin).toString());
-    try { sessionStorage.setItem('gd_listing_links', JSON.stringify(links)); } catch (_) {}
-
-    // Restore scroll position if the saved filters/page match what we’re on
-    try {
-      const st = JSON.parse(sessionStorage.getItem('gd_dash_state') || 'null');
-      if (st && st.path === location.pathname) {
-        const nowQS = new URLSearchParams(location.search);
-        const stQS  = new URLSearchParams(st.qs || {});
-        if (nowQS.toString() === stQS.toString()) {
-          requestAnimationFrame(() => window.scrollTo(0, st.scroll || 0));
-        }
-      }
-    } catch (_) {}
-
-    // When user clicks a profile, save state immediately
-    cards.forEach(a => {
-      a.addEventListener('click', () => { saveState(); });
-    });
-  })();
-</script>
-
-</body>
-</html>
+<style>
+  :root { --bg:#f7f8fb; --panel:#fff; --panel-alt:#f0f3f8; --text:#101217; --muted:#5b6270; --border:#e6e6ef; }
+  .wrap{max-width:1200px;margin:20px auto;padding:0 14px}
+  .hero{background:linear-gradient(180deg,var(--panel),var(--panel-alt));border:1px solid var(--border);padding:14px;border-radius:16px;margin-bottom:14px}
+  h1{margin:8px 0 14px}
+  .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+  @media(max-width:1100px){.grid{grid-template-columns:repeat(3,1fr)}}
+  @media(max-width:820px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:540px){.grid{grid-template-columns:1fr}}
+  .card{background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;display:flex;flex-direction:column;transition:transform .15s, box-shadow .15s}
+  .card:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.07)}
+  .avatar-wrap{width:100%;aspect-ratio:4/5;border-radius:16px;overflow:hidden;border:1px solid #e6e6ef;background:#eef2f7}
+  .thumb{width:100%;height:100%;object-fit:cover;display:block}
+  .body{padding:10px 12px}
+  .meta{color:var(--muted);font-size:.95rem}
+  .pagination{display:flex;gap:10px;justify-content:center;align-items:center;margin:18px 0}
+  .pagination a,.pagination span{padding:8px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;text-decoration:none;color:#111}
+  .pagination .current{background:#111;color:#fff;border-color:#111}
+</style>
+{% endblock %}
 

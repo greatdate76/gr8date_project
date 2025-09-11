@@ -15,28 +15,57 @@ from django.template import TemplateDoesNotExist
 from django.urls import reverse
 import secrets
 
-from .models import BlogPost, Profile
+# allauth + auth utils
+from django.contrib.auth import get_user_model, login  # login kept for future use
+from allauth.account.models import EmailAddress
+
+from .models import BlogPost, Profile, MarketingLead, HotDate, Favorite, Block  # Favorite, Block included
 from .permissions import can_view_private
 
 
 # ----------------------------
-# Helpers for session-backed favorites/blocks
+# Helpers
 # ----------------------------
 def _get_id_set(session, key):
     return set(int(x) for x in session.get(key, []))
+
+
+def create_profile(request):
+    """Show the create profile/onboarding page (marketing → conversion)."""
+    return render(request, "pages/create_your_profile.html", {
+        "limited_mode": _is_limited(request),
+    })
 
 
 def _set_id_set(session, key, s):
     session[key] = [int(x) for x in s]
 
 
+def _unique_username_for_email(email: str) -> str:
+    """
+    Use the email as username; if taken, append +N before the @ (legal chars).
+    Ensures <=150 chars for Django's default username field.
+    """
+    User = get_user_model()
+    email = (email or "").strip().lower()
+    if not email:
+        return "user"
+
+    local, _, domain = email.partition("@")
+    candidate = email[:150]
+    if not User.objects.filter(username=candidate).exists():
+        return candidate
+
+    i = 1
+    while True:
+        alt = f"{local}+{i}@{domain}" if domain else f"{local}+{i}"
+        candidate = alt[:150]
+        if not User.objects.filter(username=candidate).exists():
+            return candidate
+        i += 1
+
+
 def _visible_profiles_queryset(request):
-    """
-    Same visibility as dashboard:
-    - has a real primary image OR at least one public/additional gallery image
-    - excludes session-blocked users
-    - newest first (baseline; may be re-ordered by shuffle)
-    """
     blocked_ids = _get_id_set(request.session, "blocked_profiles")
     return (
         Profile.objects
@@ -52,12 +81,6 @@ def _visible_profiles_queryset(request):
 
 
 def _dedup_thumbs(profile, photos_public, photos_additional):
-    """
-    Build a de-duped list for the 'Photos' grid:
-    - excludes the primary image (avatar)
-    - removes exact duplicates (by file name)
-    - preserves original ordering
-    """
     primary_name = ""
     if getattr(profile, "primary_image", None) and getattr(profile.primary_image, "name", ""):
         primary_name = profile.primary_image.name.strip()
@@ -80,10 +103,6 @@ def _dedup_thumbs(profile, photos_public, photos_additional):
 # Shuffle helpers (per-login seed)
 # ----------------------------
 def _get_shuffle_seed(request) -> int:
-    """
-    Keep order stable while browsing; rotate on each login via pages/signals.py.
-    If missing (e.g., anonymous user), create a seed so refresh shuffles too.
-    """
     seed = request.session.get("dash_seed")
     if seed is None:
         seed = secrets.randbelow(1_000_000_000)
@@ -92,18 +111,33 @@ def _get_shuffle_seed(request) -> int:
 
 
 def _apply_shuffle(qs, request):
-    """
-    Default: pseudo-random order based on session seed.
-    Optional: ?sort=latest forces newest-first.
-    """
     if (request.GET.get("sort") or "").lower() == "latest":
         return qs.order_by("-created_at")
-
     seed = _get_shuffle_seed(request)
-    # Deterministic pseudo-random order: (id * seed) % big_prime
     return qs.annotate(
         sort_key=Mod(F("id") * Value(seed), Value(10000019))
     ).order_by("sort_key", "-created_at")
+
+
+# ----------------------------
+# Limited/Preview mode helper
+# ----------------------------
+def _is_limited(request) -> bool:
+    """
+    Limited/preview mode is ON when:
+      - user is anonymous, OR
+      - user exists but profile is not complete+approved.
+      - EXCEPTION: superusers are never limited (dev/admin convenience).
+    """
+    if not request.user.is_authenticated:
+        return True
+    if getattr(request.user, "is_superuser", False):
+        return False  # superusers bypass limited/preview mode
+    try:
+        p = Profile.objects.get(user_id=request.user.id)
+        return not (p.is_complete and p.is_approved)
+    except Profile.DoesNotExist:
+        return True
 
 
 # ----------------------------
@@ -114,7 +148,26 @@ def index(request):
 
 
 def marketing(request):
-    return render(request, "pages/marketing.html")
+    """
+    Marketing dashboard: reuse the same grid as /dashboard/ but
+    always render in limited/preview mode (blur/disabled actions).
+    """
+    profiles = _apply_shuffle(_visible_profiles_queryset(request), request)
+    paginator = Paginator(profiles, 12)
+    page_number = request.GET.get("page", 1)
+    page_obj = paginator.get_page(page_number)
+
+    return render(
+        request,
+        "pages/dashboard.html",  # reuse the dashboard template for consistent UI
+        {
+            "page_obj": page_obj,
+            "q": "",
+            "search_params": {"location": "", "age_min": "", "age_max": "", "gender": ""},
+            "is_superuser": request.user.is_authenticated and request.user.is_superuser,
+            "limited_mode": True,  # force preview mode here
+        },
+    )
 
 
 def messages_page(request):
@@ -126,7 +179,78 @@ def login_page(request):
     return render(request, "pages/login.html")
 
 
-def signup_page(request):
+# NEW: Post-login decision view
+@login_required
+def post_login(request):
+    """
+    Decide where to send a user right after login.
+    - Superusers -> dashboard
+    - Ready profile -> dashboard
+    - Otherwise -> marketing (preview)
+    """
+    if getattr(request.user, "is_superuser", False):
+        return redirect("pages:dashboard")
+
+    try:
+        p = Profile.objects.get(user_id=request.user.id)
+        is_ready = p.is_complete and p.is_approved
+    except Profile.DoesNotExist:
+        is_ready = False
+
+    if is_ready:
+        return redirect("pages:dashboard")
+    return redirect("pages:marketing")
+
+
+# Headless-allauth signup (uses your existing signup.html)
+def signup(request):
+    """
+    GET  -> render your approved signup template.
+    POST -> validate terms, create/find user by email, ensure EmailAddress,
+            send confirmation, then render a 'check inbox' page.
+    """
+    if request.method == "POST":
+        email = (request.POST.get("email") or "").strip().lower()
+        terms_ok = bool(request.POST.get("terms-agree"))
+
+        if not email:
+            return render(
+                request, "pages/signup.html",
+                {"error": "Please enter a valid email address.", "email": email},
+                status=400,
+            )
+        if not terms_ok:
+            return render(
+                request, "pages/signup.html",
+                {"error": "You must confirm you are over 18 and agree to the Terms & Privacy.", "email": email},
+                status=400,
+            )
+
+        User = get_user_model()
+        user = User.objects.filter(email=email).first()
+        if not user:
+            user = User(email=email, username=_unique_username_for_email(email))
+            user.set_unusable_password()
+            user.save()
+
+        # Ensure EmailAddress exists & is primary
+        email_address, _ = EmailAddress.objects.update_or_create(
+            user=user,
+            email=email,
+            defaults={"primary": True, "verified": False},
+        )
+
+        # Send allauth confirmation email
+        email_address.send_confirmation(request, signup=True)
+
+        # Track as marketing lead
+        MarketingLead.objects.update_or_create(
+            email=email,
+            defaults={"user_id": user.id, "email_verified": False},
+        )
+
+        return render(request, "pages/signup_check_inbox.html", {"email": email})
+
     return render(request, "pages/signup.html")
 
 
@@ -143,10 +267,6 @@ def terms_page(request):
 
 
 def contact_page(request):
-    """
-    Hybrid contact: shows mailto AND a site form fallback.
-    Configure SUPPORT_EMAIL or DEFAULT_FROM_EMAIL in settings.
-    """
     initial = {}
     if request.user.is_authenticated:
         initial["name"] = (request.user.get_full_name() or request.user.get_username() or "").strip()
@@ -194,13 +314,6 @@ def faq_page(request):
 # Dashboard + Profiles (public browsing)
 # ----------------------------
 def dashboard(request):
-    """
-    Show only profiles that have a usable image:
-      - a real primary_image file, OR
-      - at least one PUBLIC or ADDITIONAL gallery image
-    Exclude any user-blocked profiles (session-based).
-    Shuffle order per-login by default.
-    """
     profiles = _apply_shuffle(_visible_profiles_queryset(request), request)
 
     # simple filters from the search modal
@@ -238,16 +351,17 @@ def dashboard(request):
                 "gender": gender,
             },
             "is_superuser": request.user.is_authenticated and request.user.is_superuser,
+            "limited_mode": _is_limited(request),
         },
     )
 
 
 def profile_detail(request, pk):
-    """
-    Profile page with robust fallbacks and separated photo kinds.
-    Prev/Next links are computed from the same visibility rules + shuffle as dashboard.
-    """
     profile = get_object_or_404(Profile.objects.prefetch_related("images"), pk=pk)
+
+    # The auth.User who owns this profile (for favorites/blocks/DMs)
+    User = get_user_model()
+    profile_user = User.objects.filter(pk=profile.user_id).first()
 
     # Compute Prev/Next from the same (shuffled) visible queryset
     visible_qs = _apply_shuffle(_visible_profiles_queryset(request), request)
@@ -265,32 +379,36 @@ def profile_detail(request, pk):
     photos_public = profile.images.filter(kind__iexact="public")
     photos_additional = profile.images.filter(kind__iexact="additional")
     photos_private = profile.images.filter(kind__iexact="private")
-
-    # Build de-duped list for Photos grid (no avatar duplicates)
     thumbs = _dedup_thumbs(profile, photos_public, photos_additional)
 
     allow_private = can_view_private(request.user, profile)
 
-    fav_ids = _get_id_set(request.session, "favorite_profiles")
-    blocked_ids = _get_id_set(request.session, "blocked_profiles")
+    # DB-driven favourite / block flags (for icon colours)
+    is_favorited = False
+    is_blocked = False
+    if request.user.is_authenticated and profile_user:
+        is_favorited = Favorite.objects.filter(user=request.user, target=profile_user).exists()
+        is_blocked = Block.objects.filter(blocker=request.user, blocked=profile_user).exists()
 
     return render(
         request,
         "pages/profile.html",
         {
             "profile": profile,
+            "profile_user": profile_user,   # for quick DM
             "photos_public": photos_public,
             "photos_additional": photos_additional,
             "photos_private": photos_private,
-            "thumbs": thumbs,  # used by template Photos grid
+            "thumbs": thumbs,
             "allow_private": allow_private,
-            "is_favorited": profile.pk in fav_ids,
-            "is_blocked": profile.pk in blocked_ids,
+            "is_favorited": is_favorited,   # drives red heart
+            "is_blocked": is_blocked,       # drives red block icon
             "prev_url": prev_url,
             "next_url": next_url,
             "q": "",
             "search_params": {"location": "", "age_min": "", "age_max": "", "gender": ""},
             "is_superuser": request.user.is_authenticated and request.user.is_superuser,
+            "limited_mode": _is_limited(request),
         },
     )
 
@@ -298,17 +416,21 @@ def profile_detail(request, pk):
 @require_POST
 @login_required
 def toggle_favorite(request, pk):
-    """Session-based favorite toggle (placeholder UI behavior)."""
+    """
+    Toggle Favourite in the database (Favorite.user -> Favorite.target),
+    so Matches reflects reality. Keeps the redirect & messages UX.
+    """
     profile = get_object_or_404(Profile, pk=pk)
-    favs = _get_id_set(request.session, "favorite_profiles")
-    if pk in favs:
-        favs.remove(pk)
-        dj_messages.info(request, f"Removed {profile.display_name} from favourites.")
+    target_user_id = profile.user_id  # Profile points to auth User id
+    User = get_user_model()
+    target = get_object_or_404(User, pk=target_user_id)
+
+    fav, created = Favorite.objects.get_or_create(user=request.user, target=target)
+    if created:
+        dj_messages.success(request, f"Added {profile.display_name or target.username} to favourites.")
     else:
-        favs.add(pk)
-        dj_messages.success(request, f"Added {profile.display_name} to favourites.")
-    _set_id_set(request.session, "favorite_profiles", favs)
-    request.session.modified = True
+        fav.delete()
+        dj_messages.info(request, f"Removed {profile.display_name or target.username} from favourites.")
     return redirect("pages:profile_detail", pk=pk)
 
 
@@ -316,20 +438,23 @@ def toggle_favorite(request, pk):
 @login_required
 def block_profile(request, pk):
     """
-    Session-based block (placeholder). Blocks hide the profile on dashboard and
-    indicate state on profile page. Unblock if already blocked.
+    Toggle Block in the database (Block.blocker -> Block.blocked),
+    so Matches and filtering can rely on DB state.
     """
     profile = get_object_or_404(Profile, pk=pk)
-    blocked = _get_id_set(request.session, "blocked_profiles")
+    blocked_user_id = profile.user_id
+    User = get_user_model()
+    blocked = get_object_or_404(User, pk=blocked_user_id)
 
-    if pk in blocked:
-        blocked.remove(pk)
-        dj_messages.info(request, f"Unblocked {profile.display_name}.")
+    obj, created = Block.objects.get_or_create(blocker=request.user, blocked=blocked)
+    if created:
+        dj_messages.success(
+            request,
+            f"Blocked {profile.display_name or blocked.username}. You won't see them in the dashboard."
+        )
     else:
-        blocked.add(pk)
-        dj_messages.success(request, f"Blocked {profile.display_name}. You won't see them in the dashboard.")
-    _set_id_set(request.session, "blocked_profiles", blocked)
-    request.session.modified = True
+        obj.delete()
+        dj_messages.info(request, f"Unblocked {profile.display_name or blocked.username}.")
     return redirect("pages:profile_detail", pk=pk)
 
 
@@ -346,9 +471,6 @@ def request_private_access(request, pk):
 # ----------------------------
 @login_required
 def my_profile(request):
-    """
-    Shows the logged-in user's own profile using templates/pages/profile.html.
-    """
     profile, created = Profile.objects.get_or_create(
         user_id=request.user.id,
         defaults={
@@ -382,16 +504,23 @@ def my_profile(request):
     return render(request, "pages/profile.html", context)
 
 
+@login_required
 def my_profile_edit(request):
     """
-    Renders pages/my-profile-edit.html if it exists; otherwise shows a placeholder
-    so the route always resolves.
+    Edit the logged-in user's profile.
     """
-    try:
-        get_template("pages/my-profile-edit.html")
-        return render(request, "pages/my-profile-edit.html", {})
-    except TemplateDoesNotExist:
-        return HttpResponse("<h1>Edit My Profile</h1><p>Template not created yet.</p>")
+    profile = get_object_or_404(Profile, user_id=request.user.id)
+
+    if request.method == 'POST':
+        profile.display_name = request.POST.get('display_name', profile.display_name)
+        profile.bio = request.POST.get('bio', profile.bio)
+        profile.location = request.POST.get('location', profile.location)
+        # Add other fields as necessary
+        profile.save()
+        dj_messages.success(request, "Profile updated successfully.")
+        return redirect('pages:my_profile')
+     
+    return render(request, "pages/my-profile-edit.html", {"profile": profile})
 
 
 # ----------------------------
@@ -401,8 +530,6 @@ def my_profile_edit(request):
 def logout_view(request):
     logout(request)
     return redirect(reverse("pages:index"))
-
-
 # ----------------------------
 # Blog
 # ----------------------------
@@ -439,4 +566,40 @@ def blog_detail(request, slug):
         publish_at__lte=timezone.now()
     )
     return render(request, "pages/blog_detail.html", {"post": post})
+
+@login_required
+def hot_dates_list(request):
+    """
+    Dedicated page to list active & upcoming Hot Dates.
+    Viewing this page stamps Profile.last_seen_hotdate_at
+    so the flashing flame badge stops until a newer Hot Date appears.
+    """
+    now = timezone.now()
+    active = HotDate.objects.filter(starts_at__lte=now, expires_at__gt=now).order_by("starts_at")
+    upcoming = HotDate.objects.filter(starts_at__gt=now).order_by("starts_at")[:20]
+
+    prof = Profile.objects.filter(user_id=request.user.id).first()
+    if prof:
+        prof.last_seen_hotdate_at = timezone.now()
+        prof.save(update_fields=["last_seen_hotdate_at"])
+
+    return render(request, "pages/hot_dates.html", {"active": active, "upcoming": upcoming})
+
+@login_required
+def matches_page(request):
+    """
+    Shows:
+    - My favorites
+    - Who favorited me
+    - Who I have blocked
+    """
+    my_favs = Favorite.objects.filter(user=request.user).select_related("target").order_by("-created_at")
+    fav_me = Favorite.objects.filter(target=request.user).select_related("user").order_by("-created_at")
+    my_blocks = Block.objects.filter(blocker=request.user).select_related("blocked").order_by("-created_at")
+
+    return render(request, "pages/matches.html", {
+        "my_favs": my_favs,
+        "fav_me": fav_me,
+        "my_blocks": my_blocks,
+    })
 

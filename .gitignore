@@ -35,3 +35,4 @@ collectstatic/
 *.backup
 *.7z
 *.gz
+.env

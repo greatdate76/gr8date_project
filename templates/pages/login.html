@@ -245,21 +245,22 @@
     <div class="separator">Or</div>
 
     {% if form.errors or form.non_field_errors %}
-      <div class="error-banner">Invalid username or password. Please try again.</div>
+      <div class="error-banner">Invalid details. Please check your email/username and password and try again.</div>
     {% endif %}
 
-    <form method="post" action="{% url 'pages:login' %}">
+    <!-- IMPORTANT: action points to Django's auth login view -->
+    <form method="post" action="{% url 'login' %}">
       {% csrf_token %}
 
       <div class="form-group">
-        <label for="id_username">Username</label>
+        <label for="id_username">Email address or Username</label>
         <input
           id="id_username"
           name="username"
           type="text"
-          autocomplete="username"
+          autocomplete="username email"
           value="{{ form.username.value|default_if_none:'' }}"
-          placeholder="Enter your username"
+          placeholder="Enter your email address or username"
           required
         />
       </div>
@@ -285,7 +286,9 @@
         <a href="https://policies.google.com/terms" target="_blank" rel="noopener">Terms of Service</a> apply.
       </p>
 
-      <p class="form-link-text"><a href="#">Forgot Password?</a></p>
+      <p class="form-link-text">
+        <a href="#">Forgot Password?</a>
+      </p>
 
       <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
       <button class="form-submit-button" type="submit">Log In</button>

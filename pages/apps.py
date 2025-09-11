@@ -1,3 +1,4 @@
+# pages/apps.py
 from django.apps import AppConfig
 
 class PagesConfig(AppConfig):
@@ -5,6 +6,6 @@ class PagesConfig(AppConfig):
     name = "pages"
 
     def ready(self):
-        # Ensure signals are registered at startup
-        import pages.signals  # noqa: F401
+        # Auto-register email signals
+        from . import signals  # noqa: F401
 
